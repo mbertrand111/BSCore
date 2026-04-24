@@ -10,6 +10,12 @@ const compat = new FlatCompat({ baseDirectory: __dirname })
 const eslintConfig = [
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
+    languageOptions: {
+      parserOptions: {
+        project: true,
+        tsconfigRootDir: __dirname,
+      },
+    },
     rules: {
       // Enforce explicit return types on exported functions
       '@typescript-eslint/explicit-function-return-type': ['warn', {
@@ -20,8 +26,8 @@ const eslintConfig = [
       '@typescript-eslint/no-explicit-any': 'error',
       // Prevent unused variables from accumulating silently
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      // Note: @typescript-eslint/no-floating-promises requires type-aware linting.
-      // Enable it by adding parserOptions.project once the team configures typed linting.
+      // Requires type-aware linting — enabled via parserOptions.project above
+      '@typescript-eslint/no-floating-promises': 'error',
     },
   },
 ]
