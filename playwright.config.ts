@@ -10,7 +10,7 @@ export default defineConfig({
   ...(process.env['CI'] ? { workers: 1 } : {}),
   reporter: [['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:7777',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -24,7 +24,7 @@ export default defineConfig({
   // In CI, the server must already be running.
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:3000',
+    url: 'http://localhost:7777',
     reuseExistingServer: !process.env['CI'],
     stdout: 'ignore',
     stderr: 'pipe',
