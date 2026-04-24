@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  CSS variable definitions for this project.
+  Override these values per-project to apply brand identity.
+  Shared UI primitives reference these variables — they never hard-code colors.
+  See: docs/TECH_STACK.md — Theming Strategy
+*/
+@layer base {
+  :root {
+    /* Brand colors — HSL values without the hsl() wrapper (Tailwind alpha needs this format) */
+    --color-primary:        210 100% 45%;
+    --color-primary-fg:     0 0% 100%;
+
+    --color-secondary:      210 15% 94%;
+    --color-secondary-fg:   210 30% 20%;
+
+    --color-destructive:    0 84% 60%;
+    --color-destructive-fg: 0 0% 100%;
+
+    --color-muted:          210 15% 96%;
+    --color-muted-fg:       210 10% 45%;
+
+    --color-border:         210 15% 88%;
+    --color-background:     0 0% 100%;
+    --color-foreground:     210 30% 8%;
+
+    /* Shape */
+    --radius: 0.5rem;
+
+    /* Typography */
+    --font-sans: system-ui, sans-serif;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
