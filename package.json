@@ -18,6 +18,8 @@
     "db:migrate": "tsx scripts/db-migrate.ts"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.10.2",
+    "@supabase/supabase-js": "^2.104.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "next": "^15.0.0",

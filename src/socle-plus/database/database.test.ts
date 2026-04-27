@@ -1,10 +1,10 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-// These tests exercise module-level initialization behavior.
-// Static imports of db-client.ts are intentionally avoided here — importing the
-// module IS the action under test, and it must run fresh each time.
+// These tests exercise the lazy initialization behavior of db-client.ts.
+// Static imports of the module are avoided here — importing IS the action
+// under test in some cases, and the module must run fresh each time.
 
-describe('db-client — fail-fast initialization', () => {
+describe('db-client — lazy initialization', () => {
   beforeEach(() => {
     vi.resetModules()
   })
@@ -13,29 +13,33 @@ describe('db-client — fail-fast initialization', () => {
     vi.unstubAllEnvs()
   })
 
-  it('throws when DATABASE_URL is not set', async () => {
+  it('does not throw at module import when DATABASE_URL is not set', async () => {
     vi.stubEnv('DATABASE_URL', '')
-    await expect(import('./db-client')).rejects.toThrow('DATABASE_URL')
+    await expect(import('./db-client')).resolves.toBeDefined()
+  })
+
+  it('throws when DATABASE_URL is not set and db is first used', async () => {
+    vi.stubEnv('DATABASE_URL', '')
+    const { db } = await import('./db-client')
+    expect(() => db.select).toThrow('DATABASE_URL')
   })
 
   it('error is an instance of Error', async () => {
     vi.stubEnv('DATABASE_URL', '')
-    const error: unknown = await import('./db-client').catch((e: unknown) => e)
-    expect(error).toBeInstanceOf(Error)
+    const { db } = await import('./db-client')
+    expect(() => db.select).toThrow(Error)
   })
 
   it('error message names DATABASE_URL', async () => {
     vi.stubEnv('DATABASE_URL', '')
-    const error: unknown = await import('./db-client').catch((e: unknown) => e)
-    expect(error).toBeInstanceOf(Error)
-    expect((error as Error).message).toContain('DATABASE_URL')
+    const { db } = await import('./db-client')
+    expect(() => db.select).toThrow('DATABASE_URL')
   })
 
   it('error message mentions Socle+', async () => {
     vi.stubEnv('DATABASE_URL', '')
-    const error: unknown = await import('./db-client').catch((e: unknown) => e)
-    expect(error).toBeInstanceOf(Error)
-    expect((error as Error).message).toContain('Socle+')
+    const { db } = await import('./db-client')
+    expect(() => db.select).toThrow('Socle+')
   })
 
   it('exports db when DATABASE_URL is set', async () => {
