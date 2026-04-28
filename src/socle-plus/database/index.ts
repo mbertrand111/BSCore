@@ -1,5 +1,5 @@
 export { db } from './db-client'
 export type { Db } from './db-client'
-export { checkDatabaseHealth } from './health'
+export { checkDatabaseHealth, runSoclePlusChecks } from './health'
 export { runMigrations, applyMigrations } from './migration-runner'
 export type { Migration, MigrationFn, MigrationRecord } from './migration-types'

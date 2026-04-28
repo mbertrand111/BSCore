@@ -36,6 +36,7 @@ When a risk is resolved, mark its status `Resolved` and record the date — do n
 | ID | Description | Layer / Module | Severity | Mitigation in place | Status | Identified | Owner |
 |---|---|---|---|---|---|---|---|
 | RISK-001 | `user_roles.user_id` has no FK to `auth.users` — deleting a Supabase user may leave an orphan row | Socle+ / auth | Low | `getUser()` validates the Supabase user before role lookup; orphan rows are unreachable at runtime | Accepted | 2026-04-27 | — |
+| RISK-002 | `ctx.meta['socle.user']` is not globally populated — modules relying on implicit auth context would silently have no user | Socle+ / middleware | Low | Architectural decision: auth is per-context (layout / handler); `requireAuthUser()` throws if called without prior auth guard; documented in SOCLE_PLUS_IMPLEMENTATION_PLAN.md | Resolved | 2026-04-27 | — |
 
 ---
 
@@ -51,6 +52,23 @@ When a risk is resolved, mark its status `Resolved` and record the date — do n
 | **Remaining exposure** | A deleted Supabase user leaves a stale row in `user_roles`. The row consumes negligible storage and cannot be used to gain access, but it is not cleaned up automatically. |
 | **Resolution plan** | Add a follow-up migration that executes `ALTER TABLE user_roles ADD CONSTRAINT user_roles_user_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE` once integration tests confirm a Supabase-backed test database is available. |
 | **Status** | Accepted |
+| **Date identified** | 2026-04-27 |
+| **Owner** | — |
+
+---
+
+### RISK-002 — `ctx.meta['socle.user']` not globally pre-populated by Edge Middleware
+
+| Field | Value |
+|---|---|
+| **ID** | RISK-002 |
+| **Description** | `src/middleware.ts` runs in the Next.js Edge Runtime and cannot execute PostgreSQL queries. Role resolution requires a Drizzle query against `user_roles`. Therefore `ctx.meta['socle.user']` is never written by the global middleware — it is written only when auth is explicitly invoked in a Node.js server context. A module that reads `ctx.meta['socle.user']` without first calling a Socle+ auth guard would silently receive `undefined`. |
+| **Affected layer / module** | Socle+ / middleware architecture |
+| **Severity** | Low |
+| **Mitigation in place** | `requireAuthUser(ctx)` throws `UnauthorizedError` if `socle.user` is absent, making the failure loud and immediate rather than silent. The constraint is documented in `docs/SOCLE_PLUS_IMPLEMENTATION_PLAN.md` (Edge Runtime constraint section) and `docs/ARCHITECTURE.md` (§4.2). Module authors are required to call the appropriate Socle+ guard in every protected handler. |
+| **Remaining exposure** | A module author who skips calling an auth guard and reads `ctx.meta['socle.user']` directly gets `undefined` — no compile-time error, but a clear runtime failure. Code review must verify auth guard presence in every new protected route. |
+| **Resolution plan** | This is an accepted architectural boundary, not a defect to fix. If a future Next.js version makes Node.js–runtime middleware stable, `authMiddleware` could be promoted to a global pipeline. Until then, per-context auth is the correct pattern. |
+| **Status** | Resolved — accepted architectural decision; per-context auth is correct |
 | **Date identified** | 2026-04-27 |
 | **Owner** | — |
 

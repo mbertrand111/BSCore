@@ -52,10 +52,20 @@ Any implementation that accepts a security trade-off must document it clearly as
 
 ## 5. Admin Routes
 
-- All admin routes are protected by authentication and a minimum role check at the router level. No admin route is accidentally public.
-- Admin middleware is registered at the Socle+ level. Modules do not implement their own admin auth.
-- Admin-only API endpoints are prefixed consistently (`/admin/...`) and covered by a dedicated middleware group.
+- All admin routes are protected by authentication and a minimum role check. No admin route is accidentally public.
+- Auth enforcement is implemented in Socle+ only. Modules do not implement their own admin auth logic.
+- Admin-only API endpoints are prefixed consistently (`/admin/...`) and covered by a dedicated auth guard per route group.
 - Admin actions that affect user data (delete, role change, deactivation) are logged in the audit log.
+
+**Where auth enforcement runs (Node.js server contexts — not Edge Middleware):**
+
+| Surface | Mechanism |
+|---|---|
+| `src/app/admin/layout.tsx` and nested admin layouts | `requireAdminAuth()` from `@/socle-plus/admin` |
+| Module Route Handlers under `/api/admin/...` | `requireAuthUser(ctx)` from `@/socle-plus` |
+| Module Server Actions (write operations) | `requireAuthUser(ctx)` or `can(user, action, resource)` |
+
+`src/middleware.ts` runs in the Edge Runtime and handles only cookie refresh and security headers. It does **not** enforce authentication or roles — any check requiring a database query must happen in a Node.js server context. Auth-free paths to protected data are not possible through the Edge Middleware.
 
 ---
 

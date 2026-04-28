@@ -87,17 +87,23 @@ Browser Request
 
 ```
 Admin UI Request
-  → Socle: routing, security headers
-  → Socle+: auth middleware (verify session + role)
-    → If authorized: continue
-    → If not: 401/403 response (Socle error contract)
-  → Module route handler (e.g., CMS: POST /admin/pages)
+  → src/middleware.ts (Edge Runtime)
+      Supabase session cookie refresh, baseline security headers, x-request-id
+      ⚠ No DB access here — see Edge Runtime note below
+  → Server Component layout (Node.js)
+      Socle+: requireAdminAuth() — validates session via Supabase + resolves role from user_roles DB
+    → If not authenticated or no role: redirect to /login
+  → Module route handler (Node.js, e.g., CMS: POST /admin/pages)
+      Socle+: requireAuthUser(ctx) or can(user, action, resource) in the handler
+    → If not authorized: 401/403 (Socle error contract)
     → Module domain service (validates input, applies rules)
       → Module data layer (writes to DB via Socle+ connection)
         → Returns result
   → Module shapes response
   → Admin UI receives confirmation or error
 ```
+
+> **Edge Runtime constraint.** `src/middleware.ts` runs in Next.js's Edge Runtime, which does not have access to Node.js APIs. Role resolution requires a PostgreSQL query (`user_roles` via Drizzle + `postgres`), which is incompatible with the Edge Runtime. The Edge Middleware therefore does **not** populate `ctx.meta['socle.user']`. Auth enforcement — session validation and role check — always happens in a Node.js server context: admin route layouts via `requireAdminAuth()`, module Route Handlers and Server Actions via `requireAuthUser()` or `can()`. Future modules must never assume `ctx.meta['socle.user']` is pre-populated by `middleware.ts`.
 
 ### 4.3 Cross-Module Communication
 

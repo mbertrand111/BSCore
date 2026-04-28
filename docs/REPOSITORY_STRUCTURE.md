@@ -80,6 +80,13 @@ BSCore/
 │  ── Application source ──
 └── src/
     │
+    │  ── Next.js Edge Middleware ──
+    ├── middleware.ts             ← Runs on every matched request in the Edge Runtime.
+    │                               Responsibilities: Supabase session cookie refresh,
+    │                               baseline security headers, x-request-id propagation.
+    │                               Must not run DB queries (no Drizzle/PostgreSQL in Edge).
+    │                               Does NOT enforce auth — that happens per-layout/handler.
+    │
     │  ── Next.js App Router (routing layer only) ──
     ├── app/
     │   ├── layout.tsx              ← Root layout (HTML shell, global providers)

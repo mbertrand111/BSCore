@@ -164,6 +164,26 @@ A `MiddlewareFunction` compatible with Socle's pipeline. It:
 4. On success: writes `ctx.meta['socle.user']` and `ctx.meta['socle.session']` (expiry timestamp only)
 5. On failure: writes nothing — `requireRole()` or `requireAuth()` middleware handles rejection downstream
 
+### Edge Runtime constraint
+
+`src/middleware.ts` runs in Next.js's Edge Runtime. The Edge Runtime does not have access to Node.js APIs — `drizzle-orm`, the `postgres` driver, and any code that opens a TCP socket to PostgreSQL cannot run there.
+
+**`authMiddleware` must never be used in `src/middleware.ts`.** Role resolution calls `getUserRole()`, which executes a Drizzle query. This is Node.js–only.
+
+The Edge Middleware (`src/middleware.ts`) is responsible for three things only:
+- Supabase session **cookie refresh** (HTTP call to Supabase — Edge-compatible)
+- Baseline **security headers** (`X-Frame-Options`, `X-Content-Type-Options`, etc.)
+- **`x-request-id`** propagation for end-to-end tracing
+
+`ctx.meta['socle.user']` is therefore **never globally pre-populated** by `middleware.ts`. Every protected server context is individually responsible for resolving the user:
+
+| Context | How to get the authenticated user |
+|---|---|
+| Admin layouts (RSC) | `requireAdminAuth()` from `@/socle-plus/admin` |
+| Module Route Handlers / Server Actions | `requireAuthUser(ctx)` or `can(user, action, resource)` from `@/socle-plus` |
+
+Module authors must not assume `ctx.meta['socle.user']` exists without explicitly resolving it in their own handler or action.
+
 ### Critical: `getUser()` not `getSession()`
 
 The auth middleware and any server-side auth check must call `supabase.auth.getUser()`, not `supabase.auth.getSession()`.
@@ -295,7 +315,7 @@ Authorization checks happen server-side on every protected request. Client-suppl
 
 ### Integration with `RequestContext`
 
-Auth middleware runs first in the pipeline and populates `ctx.meta['socle.user']`. Authorization middleware runs after and reads it. This ordering is enforced by pipeline composition in `src/app/admin/layout.tsx` and admin API route groups — not by convention.
+Auth middleware runs first in the pipeline and populates `ctx.meta['socle.user']`. Authorization middleware runs after and reads it. This ordering is enforced by explicit composition in each protected server context (admin layouts, module Route Handlers) — not by a global Next.js middleware. See the **Edge Runtime constraint** note in Section 3 for why this cannot happen in `src/middleware.ts`.
 
 ---
 
@@ -317,8 +337,8 @@ ctx.meta['socle.user'] = something
 
 | Key | Type | Written by | Content |
 |---|---|---|---|
-| `socle.user` | `AuthenticatedUser \| undefined` | Auth middleware | Assembled from Supabase session + `user_roles` |
-| `socle.session` | `{ expiresAt: Date } \| undefined` | Auth middleware | Expiry timestamp from the Supabase JWT |
+| `socle.user` | `AuthenticatedUser \| undefined` | Auth middleware (Node.js only) | Assembled from Supabase session + `user_roles`; **never written by `src/middleware.ts`** |
+| `socle.session` | `{ expiresAt: Date } \| undefined` | Auth middleware (Node.js only) | Expiry timestamp from the Supabase JWT |
 | `socle.request.cookies` | `ReadonlyRequestCookies` | Next.js adapter | Cookies from `NextRequest`, populated before the pipeline runs |
 
 `socle.session` carries only the expiry timestamp surfaced from the Supabase JWT. The full session lifecycle (refresh, invalidation) is managed by Supabase and does not need further representation in `RequestContext`.
