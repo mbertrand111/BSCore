@@ -3,35 +3,48 @@
 @tailwind utilities;
 
 /*
-  CSS variable definitions for this project.
-  Override these values per-project to apply brand identity.
+  Token definitions — single source of truth for theming.
+  Override these per-project to apply brand identity.
   Shared UI primitives reference these variables — they never hard-code colors.
-  See: docs/TECH_STACK.md — Theming Strategy
+
+  Naming convention: `-fg` is the foreground/text color paired with a surface.
+  See: docs/FRONTEND.md §5 — Theming.
 */
 @layer base {
   :root {
-    /* Brand colors — HSL values without the hsl() wrapper (Tailwind alpha needs this format) */
-    --color-primary:        210 100% 45%;
-    --color-primary-fg:     0 0% 100%;
+    /* Surface */
+    --color-background:        0 0% 100%;
+    --color-foreground:        210 30% 8%;
+    --color-muted:             210 15% 96%;
+    --color-muted-fg:          210 10% 45%;
+    --color-border:            210 15% 88%;
 
-    --color-secondary:      210 15% 94%;
-    --color-secondary-fg:   210 30% 20%;
+    /* Brand */
+    --color-primary:           210 100% 45%;
+    --color-primary-fg:        0 0% 100%;
+    --color-secondary:         210 15% 94%;
+    --color-secondary-fg:      210 30% 20%;
+    --color-accent:            262 83% 58%;
+    --color-accent-fg:         0 0% 100%;
 
-    --color-destructive:    0 84% 60%;
-    --color-destructive-fg: 0 0% 100%;
-
-    --color-muted:          210 15% 96%;
-    --color-muted-fg:       210 10% 45%;
-
-    --color-border:         210 15% 88%;
-    --color-background:     0 0% 100%;
-    --color-foreground:     210 30% 8%;
+    /* Feedback */
+    --color-destructive:       0 84% 60%;
+    --color-destructive-fg:    0 0% 100%;
+    --color-success:           142 71% 38%;
+    --color-success-fg:        0 0% 100%;
+    --color-warning:           38 92% 50%;
+    --color-warning-fg:        210 30% 8%;
+    --color-info:              200 95% 45%;
+    --color-info-fg:           0 0% 100%;
 
     /* Shape */
-    --radius: 0.5rem;
+    --radius-sm:               0.25rem;
+    --radius-md:               0.5rem;
+    --radius-lg:               0.75rem;
 
     /* Typography */
-    --font-sans: system-ui, sans-serif;
+    --font-sans:               system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono:               'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
   }
 
   * {
@@ -40,5 +53,11 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+  }
+
+  /* Visible focus ring for accessibility — never remove without alternative. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
   }
 }
