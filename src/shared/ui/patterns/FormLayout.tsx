@@ -20,30 +20,31 @@ export function FormLayout({
   ...rest
 }: FormLayoutProps): React.JSX.Element {
   return (
-    <form className={cn('space-y-4', className)} {...rest}>
+    <form className={cn('space-y-5', className)} {...rest}>
       {globalError !== undefined ? (
-        <div role="alert" className="rounded-md border border-destructive bg-destructive/10 px-3 py-2 text-sm text-foreground">
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-sm text-foreground"
+        >
           {globalError}
         </div>
       ) : null}
 
-      <div className="space-y-4">{children}</div>
+      <div className="space-y-5">{children}</div>
 
       {footer !== undefined ? (
-        <div className="flex items-center justify-end gap-2 pt-2">{footer}</div>
+        <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:items-center sm:justify-end">
+          {footer}
+        </div>
       ) : null}
     </form>
   )
 }
 
 export interface FormFieldProps {
-  /** Field label text — pair with id on the input. */
   label: React.ReactNode
-  /** htmlFor target — must match the input's id. */
   htmlFor: string
-  /** Inline field error. Triggers the error-state styling. */
   error?: string
-  /** Optional helper text shown below the field when no error is present. */
   hint?: string
   required?: boolean
   children: React.ReactNode
@@ -73,11 +74,7 @@ export function FormField({
       </label>
       {children}
       {error !== undefined ? (
-        <p
-          id={`${htmlFor}-error`}
-          role="alert"
-          className="text-xs text-destructive"
-        >
+        <p id={`${htmlFor}-error`} role="alert" className="text-xs text-destructive">
           {error}
         </p>
       ) : hint !== undefined ? (

@@ -1,14 +1,30 @@
 import type React from 'react'
 import { cn } from '@/shared/ui/utils/cn'
 
+export type CardVariant = 'default' | 'outlined' | 'elevated' | 'soft' | 'accent'
+
+const VARIANT_CLASSES: Record<CardVariant, string> = {
+  default:  'bg-surface border border-border',
+  outlined: 'bg-transparent border border-border',
+  elevated: 'bg-surface-elevated border border-border shadow-md',
+  soft:     'bg-surface-muted border border-transparent',
+  accent:   'bg-accent/10 border border-accent/30 text-foreground',
+}
+
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: CardVariant
   children: React.ReactNode
 }
 
-export function Card({ className, children, ...rest }: CardProps): React.JSX.Element {
+export function Card({
+  variant = 'default',
+  className,
+  children,
+  ...rest
+}: CardProps): React.JSX.Element {
   return (
     <div
-      className={cn('rounded-md border border-border bg-background', className)}
+      className={cn('overflow-hidden rounded-card', VARIANT_CLASSES[variant], className)}
       {...rest}
     >
       {children}
@@ -27,7 +43,7 @@ Card.Header = function CardHeader({
 }: CardHeaderProps): React.JSX.Element {
   return (
     <div
-      className={cn('flex items-center justify-between border-b border-border px-4 py-3', className)}
+      className={cn('flex items-center justify-between gap-3 border-b border-border px-5 py-4', className)}
       {...rest}
     >
       {children}
@@ -45,7 +61,7 @@ Card.Body = function CardBody({
   ...rest
 }: CardBodyProps): React.JSX.Element {
   return (
-    <div className={cn('p-4', className)} {...rest}>
+    <div className={cn('px-5 py-4', className)} {...rest}>
       {children}
     </div>
   )
@@ -62,7 +78,7 @@ Card.Footer = function CardFooter({
 }: CardFooterProps): React.JSX.Element {
   return (
     <div
-      className={cn('flex items-center justify-end gap-2 border-t border-border px-4 py-3', className)}
+      className={cn('flex items-center justify-end gap-2 border-t border-border px-5 py-3', className)}
       {...rest}
     >
       {children}

@@ -24,12 +24,12 @@ export function Switch({
       <span
         aria-hidden="true"
         className={cn(
-          'relative h-5 w-9 rounded-md bg-muted transition-colors',
+          'relative inline-block h-6 w-11 rounded-lg bg-muted transition-colors duration-base',
           'peer-checked:bg-primary',
           'peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
-          'peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background',
-          'after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-md after:bg-background after:transition-transform',
-          'peer-checked:after:translate-x-4',
+          'peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2',
+          'after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-lg after:bg-background after:shadow-sm after:transition-transform after:duration-base',
+          'peer-checked:after:translate-x-5',
         )}
       />
       {label !== undefined ? <span className="text-sm text-foreground">{label}</span> : null}

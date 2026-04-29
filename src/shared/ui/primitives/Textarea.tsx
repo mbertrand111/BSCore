@@ -8,8 +8,8 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
 }
 
 const STATE_CLASSES: Record<TextareaState, string> = {
-  default: 'border-border focus-visible:ring-primary',
-  error:   'border-destructive focus-visible:ring-destructive',
+  default: 'border-border focus:border-primary focus-visible:ring-primary',
+  error:   'border-destructive focus:border-destructive focus-visible:ring-destructive',
 }
 
 export function Textarea({
@@ -22,9 +22,9 @@ export function Textarea({
     <textarea
       rows={rows}
       className={cn(
-        'block w-full rounded-md border bg-background px-3 py-2 text-sm text-foreground transition-colors',
+        'block w-full rounded-md border bg-surface px-3 py-2 text-sm text-foreground transition-colors duration-base',
         'placeholder:text-muted-fg',
-        'disabled:cursor-not-allowed disabled:opacity-50',
+        'disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-60',
         STATE_CLASSES[state],
         className,
       )}

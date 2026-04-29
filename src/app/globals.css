@@ -19,6 +19,11 @@
     --color-muted-fg:          210 10% 45%;
     --color-border:            210 15% 88%;
 
+    /* Layered surfaces — aliases of background until a project overrides */
+    --color-surface:           var(--color-background);
+    --color-surface-muted:     var(--color-muted);
+    --color-surface-elevated:  0 0% 100%;
+
     /* Brand */
     --color-primary:           210 100% 45%;
     --color-primary-fg:        0 0% 100%;
@@ -37,14 +42,48 @@
     --color-info:              200 95% 45%;
     --color-info-fg:           0 0% 100%;
 
+    /* Overlay — used with /alpha for backdrops */
+    --color-overlay-dark:      210 30% 8%;
+    --color-overlay-light:     0 0% 100%;
+
     /* Shape */
     --radius-sm:               0.25rem;
     --radius-md:               0.5rem;
-    --radius-lg:               0.75rem;
+    --radius-lg:               9999px;        /* pill */
+    --radius-card:             0.75rem;       /* cards / modals — between md and pill */
+
+    /* Shadow */
+    --shadow-sm:  0 1px 2px 0 hsl(var(--color-foreground) / 0.05);
+    --shadow-md:  0 4px 6px -1px hsl(var(--color-foreground) / 0.08), 0 2px 4px -2px hsl(var(--color-foreground) / 0.06);
+    --shadow-lg:  0 10px 25px -5px hsl(var(--color-foreground) / 0.10), 0 8px 10px -6px hsl(var(--color-foreground) / 0.06);
 
     /* Typography */
-    --font-sans:               system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --font-mono:               'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+    --font-sans:        system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono:        'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+    --font-body:        var(--font-sans);
+    --font-heading:     var(--font-sans);
+    --font-subheading:  var(--font-sans);
+
+    /* Ring (focus) */
+    --ring-color:        var(--color-primary);
+    --ring-offset-color: var(--color-background);
+
+    /* Motion — duration tokens */
+    --motion-fast:       100ms;
+    --motion-base:       180ms;
+    --motion-slow:       300ms;
+
+    /* Motion — easing tokens */
+    --ease-standard:     cubic-bezier(0.4, 0, 0.2, 1);     /* default UI motion */
+    --ease-emphasized:   cubic-bezier(0.16, 1, 0.3, 1);    /* enter / "swoosh in" */
+
+    /* Z-index scale — single source of truth for stacking. Order:
+       sticky < dropdown < modal < popover < toast. */
+    --z-sticky:    30;
+    --z-dropdown:  40;
+    --z-modal:     50;
+    --z-popover:   55;
+    --z-toast:     60;
   }
 
   * {
@@ -53,11 +92,66 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    @apply tracking-tight;
   }
 
   /* Visible focus ring for accessibility — never remove without alternative. */
   :focus-visible {
-    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+    @apply outline-none ring-2 ring-offset-2;
+    --tw-ring-color: hsl(var(--ring-color));
+    --tw-ring-offset-color: hsl(var(--ring-offset-color));
+  }
+}
+
+/*
+  Reduced motion — respect the user's OS / browser preference.
+  We collapse durations to ~0 instead of removing animations entirely so
+  state changes (e.g. modal open) stay visible without movement.
+  Applies to every transition, animation, and scroll behavior in the app.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+  Animations — Tailwind's `animate-*` utilities map to these keyframes via
+  the config in tailwind.config.ts. No Framer Motion, no JS-driven motion.
+*/
+@layer utilities {
+  @keyframes overlay-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes overlay-fade-out {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+  }
+  @keyframes content-fade-scale-in {
+    from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+  @keyframes content-fade-scale-out {
+    from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    to   { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pop-out {
+    from { opacity: 1; transform: scale(1); }
+    to   { opacity: 0; transform: scale(0.96); }
   }
 }

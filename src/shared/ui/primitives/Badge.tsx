@@ -1,7 +1,15 @@
 import type React from 'react'
 import { cn } from '@/shared/ui/utils/cn'
 
-export type BadgeIntent = 'neutral' | 'success' | 'warning' | 'danger' | 'info'
+export type BadgeIntent =
+  | 'neutral'
+  | 'success'
+  | 'warning'
+  | 'danger'
+  | 'info'
+  | 'accent'
+  | 'highlight'
+  | 'outline'
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   intent?: BadgeIntent
@@ -9,11 +17,14 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const INTENT_CLASSES: Record<BadgeIntent, string> = {
-  neutral: 'bg-muted text-muted-fg',
-  success: 'bg-success text-success-fg',
-  warning: 'bg-warning text-warning-fg',
-  danger:  'bg-destructive text-destructive-fg',
-  info:    'bg-info text-info-fg',
+  neutral:   'bg-muted text-muted-fg',
+  success:   'bg-success text-success-fg',
+  warning:   'bg-warning text-warning-fg',
+  danger:    'bg-destructive text-destructive-fg',
+  info:      'bg-info text-info-fg',
+  accent:    'bg-accent text-accent-fg',
+  highlight: 'bg-primary/10 text-primary',
+  outline:   'border border-border bg-transparent text-foreground',
 }
 
 export function Badge({
@@ -25,7 +36,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-medium',
+        'inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium',
         INTENT_CLASSES[intent],
         className,
       )}

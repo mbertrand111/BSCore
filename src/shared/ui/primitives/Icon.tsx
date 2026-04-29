@@ -4,13 +4,14 @@ import { cn } from '@/shared/ui/utils/cn'
 export type IconSize = 'sm' | 'md' | 'lg'
 
 /**
- * Sizing wrapper for an icon. The caller passes the actual SVG (inline or
- * from a library) as children. This keeps the primitive lib free of an
- * icon dependency until the project picks one (FRONTEND.md OQ — not yet
- * resolved).
+ * Sizing wrapper for an icon. The caller passes the actual icon as children
+ * — typically a lucide-react component, but any SVG works.
  *
- * Decorative icons should be wrapped with `decorative` (sets aria-hidden).
- * Meaningful icons must receive an `aria-label` on the parent button or
+ *   import { Check } from 'lucide-react'
+ *   <Icon size="sm"><Check /></Icon>
+ *
+ * Decorative icons get aria-hidden by default. For meaningful icons set
+ * `decorative={false}` and pair with an aria-label on the parent button or
  * provide accessible text alongside.
  */
 export interface IconProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'children'> {
@@ -20,9 +21,9 @@ export interface IconProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, '
 }
 
 const SIZE_CLASSES: Record<IconSize, string> = {
-  sm: 'h-4 w-4',
-  md: 'h-5 w-5',
-  lg: 'h-6 w-6',
+  sm: 'h-4 w-4 [&_svg]:h-4 [&_svg]:w-4',
+  md: 'h-5 w-5 [&_svg]:h-5 [&_svg]:w-5',
+  lg: 'h-6 w-6 [&_svg]:h-6 [&_svg]:w-6',
 }
 
 export function Icon({

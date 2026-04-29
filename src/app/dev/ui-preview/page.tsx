@@ -1,6 +1,7 @@
 import type React from 'react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { Check, Sparkles, AlertTriangle, Mail } from 'lucide-react'
 import { getEnv } from '@/socle/config/env'
 
 import {
@@ -8,21 +9,42 @@ import {
   Input,
   Textarea,
   Select,
+  SelectItem,
+  SelectLabel,
+  SelectGroup,
+  SelectSeparator,
   Checkbox,
   Switch,
   Label,
   Badge,
+  Icon,
   Spinner,
   Skeleton,
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
 } from '@/shared/ui/primitives'
 import {
   Card,
   EmptyState,
   ErrorState,
   LoadingState,
+  Toast,
   FormLayout,
   FormField,
   DataTable,
+  Container,
+  Grid,
+  Overlay,
+  ImageFrame,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
   type DataTableColumn,
 } from '@/shared/ui/patterns'
 import {
@@ -56,7 +78,7 @@ const MOCK_ROWS: ReadonlyArray<MockRow> = [
 
 const MOCK_COLUMNS: ReadonlyArray<DataTableColumn<MockRow>> = [
   { key: 'name',   label: 'Name',   accessor: 'name' },
-  { key: 'role',   label: 'Role',   render: (r) => <Badge intent="neutral">{r.role}</Badge> },
+  { key: 'role',   label: 'Role',   render: (r) => <Badge intent="highlight">{r.role}</Badge> },
   {
     key: 'status', label: 'Status',
     render: (r) => {
@@ -67,32 +89,40 @@ const MOCK_COLUMNS: ReadonlyArray<DataTableColumn<MockRow>> = [
 ]
 
 const COLOR_TOKENS: ReadonlyArray<{ name: string; surface: string; fg?: string }> = [
-  { name: 'background',  surface: 'bg-background',  fg: 'text-foreground' },
-  { name: 'foreground',  surface: 'bg-foreground',  fg: 'text-background' },
-  { name: 'muted',       surface: 'bg-muted',       fg: 'text-muted-fg' },
-  { name: 'border',      surface: 'bg-border',      fg: 'text-foreground' },
-  { name: 'primary',     surface: 'bg-primary',     fg: 'text-primary-fg' },
-  { name: 'accent',      surface: 'bg-accent',      fg: 'text-accent-fg' },
-  { name: 'destructive', surface: 'bg-destructive', fg: 'text-destructive-fg' },
-  { name: 'success',     surface: 'bg-success',     fg: 'text-success-fg' },
-  { name: 'warning',     surface: 'bg-warning',     fg: 'text-warning-fg' },
-  { name: 'info',        surface: 'bg-info',        fg: 'text-info-fg' },
+  { name: 'background',       surface: 'bg-background',       fg: 'text-foreground' },
+  { name: 'foreground',       surface: 'bg-foreground',       fg: 'text-background' },
+  { name: 'muted',            surface: 'bg-muted',            fg: 'text-muted-fg' },
+  { name: 'border',           surface: 'bg-border',           fg: 'text-foreground' },
+  { name: 'surface-elevated', surface: 'bg-surface-elevated', fg: 'text-foreground' },
+  { name: 'primary',          surface: 'bg-primary',          fg: 'text-primary-fg' },
+  { name: 'accent',           surface: 'bg-accent',           fg: 'text-accent-fg' },
+  { name: 'destructive',      surface: 'bg-destructive',      fg: 'text-destructive-fg' },
+  { name: 'success',          surface: 'bg-success',          fg: 'text-success-fg' },
+  { name: 'warning',          surface: 'bg-warning',          fg: 'text-warning-fg' },
+  { name: 'info',             surface: 'bg-info',             fg: 'text-info-fg' },
+  { name: 'overlay-dark/50',  surface: 'bg-overlay-dark/50',  fg: 'text-background' },
 ]
 
 const RADIUS_TOKENS: ReadonlyArray<{ name: string; className: string }> = [
-  { name: 'sm', className: 'rounded-sm' },
-  { name: 'md', className: 'rounded-md' },
-  { name: 'lg', className: 'rounded-lg' },
+  { name: 'sm',   className: 'rounded-sm' },
+  { name: 'md',   className: 'rounded-md' },
+  { name: 'card', className: 'rounded-card' },
+  { name: 'lg (pill)', className: 'rounded-lg' },
+]
+
+const SHADOW_TOKENS: ReadonlyArray<{ name: string; className: string }> = [
+  { name: 'shadow-sm', className: 'shadow-sm' },
+  { name: 'shadow-md', className: 'shadow-md' },
+  { name: 'shadow-lg', className: 'shadow-lg' },
 ]
 
 export default function UIPreviewPage(): React.JSX.Element {
-  // Dev-only surface — never exposed in production.
   if (getEnv('NODE_ENV') === 'production') {
     notFound()
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-12 px-4 py-8 sm:px-6 sm:py-12">
+    <Container size="xl" className="space-y-12 py-10">
       {/* Intro */}
       <header className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">BSCore UI Preview</h1>
@@ -106,7 +136,7 @@ export default function UIPreviewPage(): React.JSX.Element {
       {/* Tokens */}
       <Section title="Tokens">
         <Subsection title="Colors">
-          <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-5">
+          <Grid cols={4} gap="sm">
             {COLOR_TOKENS.map((token) => (
               <div
                 key={token.name}
@@ -115,15 +145,26 @@ export default function UIPreviewPage(): React.JSX.Element {
                 <span className="text-xs font-medium">{token.name}</span>
               </div>
             ))}
-          </div>
+          </Grid>
         </Subsection>
 
         <Subsection title="Radius">
           <div className="flex flex-wrap items-end gap-4">
             {RADIUS_TOKENS.map((r) => (
               <div key={r.name} className="flex flex-col items-center gap-2">
-                <div className={`h-16 w-16 bg-primary ${r.className}`} aria-hidden="true" />
+                <div className={`h-16 w-24 bg-primary ${r.className}`} aria-hidden="true" />
                 <span className="text-xs text-muted-fg">{r.name}</span>
+              </div>
+            ))}
+          </div>
+        </Subsection>
+
+        <Subsection title="Shadow">
+          <div className="flex flex-wrap items-end gap-6">
+            {SHADOW_TOKENS.map((s) => (
+              <div key={s.name} className="flex flex-col items-center gap-2">
+                <div className={`h-16 w-24 rounded-card bg-surface-elevated ${s.className}`} aria-hidden="true" />
+                <span className="text-xs text-muted-fg">{s.name}</span>
               </div>
             ))}
           </div>
@@ -131,8 +172,14 @@ export default function UIPreviewPage(): React.JSX.Element {
 
         <Subsection title="Typography">
           <div className="space-y-2">
-            <p className="font-sans text-base text-foreground">
-              font-sans — The quick brown fox jumps over the lazy dog.
+            <p className="font-heading text-2xl font-semibold text-foreground">
+              Heading — The quick brown fox.
+            </p>
+            <p className="font-subheading text-lg font-medium text-foreground">
+              Subheading — The quick brown fox.
+            </p>
+            <p className="font-body text-base text-foreground">
+              Body — The quick brown fox jumps over the lazy dog.
             </p>
             <p className="font-mono text-sm text-foreground">
               font-mono — const greeting = &quot;Hello, BSCore&quot;
@@ -147,16 +194,19 @@ export default function UIPreviewPage(): React.JSX.Element {
           <div className="flex flex-wrap items-center gap-2">
             <Button intent="primary">Primary</Button>
             <Button intent="secondary">Secondary</Button>
+            <Button intent="accent">Accent</Button>
             <Button intent="destructive">Destructive</Button>
             <Button intent="ghost">Ghost</Button>
           </div>
         </Subsection>
 
-        <Subsection title="Button — sizes">
+        <Subsection title="Button — sizes & rounded">
           <div className="flex flex-wrap items-center gap-2">
             <Button size="sm">Small</Button>
             <Button size="md">Medium</Button>
             <Button size="lg">Large</Button>
+            <Button rounded="lg">Pill</Button>
+            <Button leadingIcon={<Mail className="h-4 w-4" />}>With icon</Button>
           </div>
         </Subsection>
 
@@ -182,6 +232,14 @@ export default function UIPreviewPage(): React.JSX.Element {
               <Label htmlFor="ui-input-disabled">Disabled</Label>
               <Input id="ui-input-disabled" disabled defaultValue="Read only" />
             </div>
+            <div>
+              <Label htmlFor="ui-input-icon">With leading icon</Label>
+              <Input
+                id="ui-input-icon"
+                placeholder="you@example.com"
+                leadingSlot={<Mail className="h-4 w-4" />}
+              />
+            </div>
           </div>
         </Subsection>
 
@@ -198,42 +256,50 @@ export default function UIPreviewPage(): React.JSX.Element {
           </div>
         </Subsection>
 
-        <Subsection title="Select">
+        <Subsection title="Select (Radix)">
           <div className="grid max-w-md gap-3">
             <div>
               <Label htmlFor="ui-select-default">Default</Label>
-              <Select id="ui-select-default" defaultValue="admin">
-                <option value="admin">Admin</option>
-                <option value="super_admin">Super admin</option>
+              <Select id="ui-select-default" defaultValue="admin" placeholder="Pick a role">
+                <SelectGroup>
+                  <SelectLabel>Available roles</SelectLabel>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="super_admin">Super admin</SelectItem>
+                </SelectGroup>
+                <SelectSeparator />
+                <SelectItem value="viewer" disabled>Viewer (coming soon)</SelectItem>
               </Select>
             </div>
             <div>
               <Label htmlFor="ui-select-disabled">Disabled</Label>
-              <Select id="ui-select-disabled" disabled defaultValue="admin">
-                <option value="admin">Admin</option>
+              <Select id="ui-select-disabled" disabled defaultValue="admin" placeholder="Pick a role">
+                <SelectItem value="admin">Admin</SelectItem>
               </Select>
             </div>
           </div>
         </Subsection>
 
-        <Subsection title="Checkbox (static)">
+        <Subsection title="Checkbox (Radix) — static">
           <div className="flex flex-wrap items-center gap-4">
             <label className="inline-flex items-center gap-2 text-sm text-foreground">
-              <Checkbox defaultChecked={false} /> Unchecked
+              <Checkbox aria-label="Unchecked demo" /> Unchecked
             </label>
             <label className="inline-flex items-center gap-2 text-sm text-foreground">
-              <Checkbox defaultChecked /> Checked
+              <Checkbox defaultChecked aria-label="Checked demo" /> Checked
             </label>
             <label className="inline-flex items-center gap-2 text-sm text-foreground">
-              <Checkbox disabled /> Disabled
+              <Checkbox disabled aria-label="Disabled demo" /> Disabled
             </label>
             <label className="inline-flex items-center gap-2 text-sm text-foreground">
-              <Checkbox defaultChecked disabled /> Disabled + checked
+              <Checkbox defaultChecked disabled aria-label="Disabled checked demo" /> Disabled + checked
+            </label>
+            <label className="inline-flex items-center gap-2 text-sm text-foreground">
+              <Checkbox state="error" defaultChecked aria-label="Error demo" /> Error
             </label>
           </div>
         </Subsection>
 
-        <Subsection title="Switch (static)">
+        <Subsection title="Switch — static">
           <div className="flex flex-wrap items-center gap-4">
             <Switch defaultChecked={false} label="Off" />
             <Switch defaultChecked label="On" />
@@ -242,13 +308,24 @@ export default function UIPreviewPage(): React.JSX.Element {
           </div>
         </Subsection>
 
-        <Subsection title="Badge">
+        <Subsection title="Badge — all intents">
           <div className="flex flex-wrap items-center gap-2">
             <Badge intent="neutral">neutral</Badge>
             <Badge intent="success">success</Badge>
             <Badge intent="warning">warning</Badge>
             <Badge intent="danger">danger</Badge>
             <Badge intent="info">info</Badge>
+            <Badge intent="accent">accent</Badge>
+            <Badge intent="highlight">highlight</Badge>
+            <Badge intent="outline">outline</Badge>
+          </div>
+        </Subsection>
+
+        <Subsection title="Icon (lucide-react)">
+          <div className="flex flex-wrap items-center gap-4 text-foreground">
+            <Icon size="sm"><Check /></Icon>
+            <Icon size="md"><Sparkles /></Icon>
+            <Icon size="lg"><AlertTriangle className="text-warning" /></Icon>
           </div>
         </Subsection>
 
@@ -275,15 +352,32 @@ export default function UIPreviewPage(): React.JSX.Element {
 
       {/* Patterns */}
       <Section title="Patterns">
-        <Subsection title="Card (Header / Body / Footer)">
-          <Card className="max-w-md">
+        <Subsection title="Card — variants">
+          <Grid cols={3}>
+            {(['default', 'outlined', 'elevated', 'soft', 'accent'] as const).map((variant) => (
+              <Card key={variant} variant={variant}>
+                <Card.Header>
+                  <h3 className="text-sm font-semibold capitalize text-foreground">{variant}</h3>
+                </Card.Header>
+                <Card.Body>
+                  <p className="text-sm text-muted-fg">
+                    Card variant: <span className="font-mono">{variant}</span>.
+                  </p>
+                </Card.Body>
+              </Card>
+            ))}
+          </Grid>
+        </Subsection>
+
+        <Subsection title="Card with footer">
+          <Card variant="elevated" className="max-w-md">
             <Card.Header>
-              <h3 className="text-sm font-semibold text-foreground">Card title</h3>
+              <h3 className="text-sm font-semibold text-foreground">Settings</h3>
               <Badge intent="info">draft</Badge>
             </Card.Header>
             <Card.Body>
               <p className="text-sm text-muted-fg">
-                Body content lives here. Cards bound a content surface and stack vertically.
+                Header / Body / Footer sub-components keep cards consistent across modules.
               </p>
             </Card.Body>
             <Card.Footer>
@@ -291,6 +385,14 @@ export default function UIPreviewPage(): React.JSX.Element {
               <Button intent="primary" size="sm">Save</Button>
             </Card.Footer>
           </Card>
+        </Subsection>
+
+        <Subsection title="Toasts">
+          <div className="flex flex-col gap-2">
+            <Toast intent="success" title="Saved" description="Your changes have been written." />
+            <Toast intent="error" title="Could not save" description="Try again in a moment." />
+            <Toast intent="info" title="Heads up" description="A new version is available." />
+          </div>
         </Subsection>
 
         <Subsection title="EmptyState">
@@ -313,14 +415,14 @@ export default function UIPreviewPage(): React.JSX.Element {
           <LoadingState label="Loading items…" />
         </Subsection>
 
-        <Subsection title="FormLayout (no submission)">
+        <Subsection title="FormLayout">
           <FormLayout
             className="max-w-md"
             action="#"
             footer={
               <>
-                <Button intent="ghost" size="md" type="button">Cancel</Button>
-                <Button intent="primary" size="md" type="button">Save</Button>
+                <Button intent="ghost" type="button">Cancel</Button>
+                <Button intent="primary" type="button">Save</Button>
               </>
             }
           >
@@ -330,13 +432,19 @@ export default function UIPreviewPage(): React.JSX.Element {
             <FormField label="Email" htmlFor="ui-form-email" hint="We will never share it.">
               <Input id="ui-form-email" name="email" type="email" placeholder="jane@example.com" />
             </FormField>
+            <FormField label="Role" htmlFor="ui-form-role">
+              <Select id="ui-form-role" defaultValue="admin" placeholder="Pick a role">
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="super_admin">Super admin</SelectItem>
+              </Select>
+            </FormField>
             <FormField label="Bio" htmlFor="ui-form-bio" error="This field is required.">
               <Textarea id="ui-form-bio" name="bio" state="error" />
             </FormField>
           </FormLayout>
         </Subsection>
 
-        <Subsection title="DataTable (mock data)">
+        <Subsection title="DataTable">
           <DataTable
             testId="ui-preview-table"
             columns={MOCK_COLUMNS}
@@ -345,7 +453,7 @@ export default function UIPreviewPage(): React.JSX.Element {
           />
         </Subsection>
 
-        <Subsection title="DataTable (empty)">
+        <Subsection title="DataTable — empty">
           <DataTable
             testId="ui-preview-empty-table"
             columns={MOCK_COLUMNS}
@@ -354,6 +462,117 @@ export default function UIPreviewPage(): React.JSX.Element {
             emptyTitle="No users yet"
             emptyDescription="Seed test users with npm run seed:e2e."
           />
+        </Subsection>
+
+        <Subsection title="ImageFrame + Overlay">
+          <Grid cols={3}>
+            {[1, 2, 3].map((i) => (
+              <ImageFrame
+                key={i}
+                aspectClassName="aspect-[4/3]"
+                overlay={
+                  <Overlay tone="dark" strength="medium" className="flex items-end p-4">
+                    <p className="text-sm font-medium text-background">Image caption #{i}</p>
+                  </Overlay>
+                }
+              >
+                {/* Placeholder gradient — replace with real <img> or next/image. */}
+                <div className="h-full w-full bg-gradient-to-br from-primary via-accent to-info" />
+              </ImageFrame>
+            ))}
+          </Grid>
+        </Subsection>
+      </Section>
+
+      {/* Tabs / Accordion / Avatar */}
+      <Section title="Tabs · Accordion · Avatar">
+        <Subsection title="Tabs">
+          <Tabs defaultValue="overview">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="audit">Audit</TabsTrigger>
+            </TabsList>
+            <TabsContent value="overview">
+              <p className="text-sm text-muted-fg">Overview content goes here.</p>
+            </TabsContent>
+            <TabsContent value="settings">
+              <p className="text-sm text-muted-fg">Settings content goes here.</p>
+            </TabsContent>
+            <TabsContent value="audit">
+              <p className="text-sm text-muted-fg">Audit log content goes here.</p>
+            </TabsContent>
+          </Tabs>
+        </Subsection>
+
+        <Subsection title="Accordion (single, collapsible)">
+          <Accordion type="single" collapsible defaultValue="a">
+            <AccordionItem value="a">
+              <AccordionTrigger>What does BSCore include?</AccordionTrigger>
+              <AccordionContent>
+                Socle (routing, errors, logger), Socle+ (auth, DB, admin shell, audit), and the
+                modules layer where your domain features live.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="b">
+              <AccordionTrigger>How is theming applied?</AccordionTrigger>
+              <AccordionContent>
+                CSS variables in <code>globals.css</code>, exposed via Tailwind tokens. Per-client
+                overrides live in <code>src/client/config/theme.config.ts</code>.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="c">
+              <AccordionTrigger>Where do modules register their admin pages?</AccordionTrigger>
+              <AccordionContent>
+                Through <code>registerAdminNav()</code> at activation time — the shell renders
+                exactly what has been registered, nothing more.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </Subsection>
+
+        <Subsection title="Avatar — sizes & fallback">
+          <div className="flex flex-wrap items-end gap-4">
+            {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (
+              <div key={size} className="flex flex-col items-center gap-1">
+                <Avatar size={size}>
+                  <AvatarImage src="/__never_loads.png" alt="" />
+                  <AvatarFallback>JD</AvatarFallback>
+                </Avatar>
+                <span className="text-xs text-muted-fg">{size}</span>
+              </div>
+            ))}
+          </div>
+        </Subsection>
+      </Section>
+
+      {/* Layout */}
+      <Section title="Layout helpers">
+        <Subsection title="Grid (1 → 2 → 3 → 4 columns responsive)">
+          <Grid cols={4} gap="sm">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex h-16 items-center justify-center rounded-md bg-muted text-xs text-muted-fg"
+              >
+                cell {i + 1}
+              </div>
+            ))}
+          </Grid>
+        </Subsection>
+
+        <Subsection title="Container sizes">
+          <div className="space-y-2">
+            {(['sm', 'md', 'lg', 'xl'] as const).map((size) => (
+              <Container
+                key={size}
+                size={size}
+                className="rounded-md bg-muted px-3 py-2 text-xs text-muted-fg"
+              >
+                Container size: <span className="font-mono">{size}</span>
+              </Container>
+            ))}
+          </div>
         </Subsection>
       </Section>
 
@@ -369,7 +588,7 @@ export default function UIPreviewPage(): React.JSX.Element {
                   { label: 'Admin', href: '#' },
                   { label: 'Users' },
                 ]}
-                action={<Button intent="primary" size="md">New user</Button>}
+                action={<Button intent="primary">New user</Button>}
               />
               <p className="text-xs text-muted-fg">↑ AdminPageHeader rendered above this line.</p>
             </Card.Body>
@@ -409,11 +628,12 @@ export default function UIPreviewPage(): React.JSX.Element {
       {/* Footer */}
       <footer className="border-t border-border pt-6 text-xs text-muted-fg">
         <p>
-          Modal / Dialog: not shipped in V1 (FRONTEND.md OQ F-1, headless lib not chosen).
-          Toast orchestration: not shipped in V1 (FRONTEND.md OQ F-2, only the visual primitive).
+          V1.1 design system. Modal + DropdownMenu shipped via Radix. Toast orchestration
+          remains FRONTEND.md OQ F-2 (visual primitive only). Tooltip not shipped — re-evaluate
+          when first admin module needs one.
         </p>
       </footer>
-    </div>
+    </Container>
   )
 }
 
@@ -431,10 +651,8 @@ function Section({
 }): React.JSX.Element {
   return (
     <section className="space-y-6">
-      <h2 className="text-xl font-semibold text-foreground">{title}</h2>
-      <div className="space-y-6 rounded-md border border-border bg-background p-6">
-        {children}
-      </div>
+      <h2 className="font-heading text-xl font-semibold text-foreground">{title}</h2>
+      <div className="space-y-6 rounded-card border border-border bg-surface p-6">{children}</div>
     </section>
   )
 }

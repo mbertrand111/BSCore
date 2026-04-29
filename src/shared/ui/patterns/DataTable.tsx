@@ -1,4 +1,5 @@
 import type React from 'react'
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { cn } from '@/shared/ui/utils/cn'
 import { EmptyState } from './EmptyState'
 
@@ -9,39 +10,46 @@ import { EmptyState } from './EmptyState'
  *   - columns are declarative (label + accessor or render)
  *   - displays rows
  *   - empty state when rows.length === 0
- *   - no sort, no pagination, no grouping (per FRONTEND.md §4)
+ *   - hover row + responsive horizontal scroll
+ *   - optional sort affordances (caller controls the sort state)
  *
- * Add features only when a real module needs them.
+ * Sort is OPTIONAL and CONTROLLED. The DataTable does not sort the rows
+ * itself — it only renders the affordances (clickable headers + indicators)
+ * and emits the requested sort. The caller applies the sort to its data
+ * before passing `rows` in.
  */
 export interface DataTableColumn<T> {
-  /** Stable identifier for the column — used as React key and data-testid suffix. */
   key: string
-  /** Header label shown in the <th>. */
   label: string
-  /**
-   * Either a property name from T (typed) or a custom renderer.
-   * If both are provided, render wins.
-   */
   accessor?: keyof T
   render?: (row: T) => React.ReactNode
-  /** Optional className applied to <td>. */
   cellClassName?: string
-  /** Optional className applied to <th>. */
   headerClassName?: string
+  minWidthClassName?: string
+  /** Mark this column as sortable — clicking the header emits onSortChange. */
+  sortable?: boolean
+}
+
+export type SortDirection = 'asc' | 'desc'
+
+export interface SortState {
+  key: string
+  direction: SortDirection
 }
 
 export interface DataTableProps<T> {
   columns: ReadonlyArray<DataTableColumn<T>>
   rows: ReadonlyArray<T>
-  /** Stable id extractor for the row's React key and data-testid suffix. */
   rowId: (row: T) => string
-  /** Test id base — rows become `${testId}-row-${id}`, header becomes `${testId}-header`. */
   testId?: string
-  /** Empty state title shown when rows is empty. */
   emptyTitle?: string
-  /** Empty state description. */
   emptyDescription?: string
   className?: string
+  onRowClick?: (row: T) => void
+  /** Current sort state — null means unsorted. */
+  sort?: SortState | null
+  /** Called when a sortable header is clicked. Caller updates state + rows. */
+  onSortChange?: (sort: SortState | null) => void
 }
 
 export function DataTable<T>({
@@ -52,6 +60,9 @@ export function DataTable<T>({
   emptyTitle = 'No items',
   emptyDescription,
   className,
+  onRowClick,
+  sort,
+  onSortChange,
 }: DataTableProps<T>): React.JSX.Element {
   if (rows.length === 0) {
     return (
@@ -62,41 +73,89 @@ export function DataTable<T>({
     )
   }
 
+  const handleSortClick = (col: DataTableColumn<T>): void => {
+    if (col.sortable !== true || onSortChange === undefined) return
+    const isCurrent = sort?.key === col.key
+    if (!isCurrent) {
+      onSortChange({ key: col.key, direction: 'asc' })
+      return
+    }
+    if (sort?.direction === 'asc') {
+      onSortChange({ key: col.key, direction: 'desc' })
+      return
+    }
+    onSortChange(null)
+  }
+
   return (
-    <div className={cn('overflow-x-auto rounded-md border border-border', className)}>
+    <div className={cn('overflow-x-auto rounded-md border border-border bg-surface', className)}>
       <table
         className="w-full border-collapse text-sm"
         {...(testId !== undefined ? { 'data-testid': testId } : {})}
       >
-        <thead className="bg-muted">
+        <thead className="bg-surface-muted">
           <tr>
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                scope="col"
-                className={cn(
-                  'border-b border-border px-3 py-2 text-left font-medium text-muted-fg',
-                  col.headerClassName,
-                )}
-              >
-                {col.label}
-              </th>
-            ))}
+            {columns.map((col) => {
+              const isSortable = col.sortable === true
+              const isCurrent = sort?.key === col.key
+              const ariaSort = isCurrent
+                ? sort?.direction === 'asc'
+                  ? 'ascending'
+                  : 'descending'
+                : isSortable
+                  ? 'none'
+                  : undefined
+
+              return (
+                <th
+                  key={col.key}
+                  scope="col"
+                  aria-sort={ariaSort}
+                  className={cn(
+                    'whitespace-nowrap border-b border-border px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide text-muted-fg',
+                    col.minWidthClassName,
+                    col.headerClassName,
+                  )}
+                >
+                  {isSortable ? (
+                    <button
+                      type="button"
+                      onClick={() => handleSortClick(col)}
+                      className="inline-flex items-center gap-1 font-medium uppercase tracking-wide hover:text-foreground"
+                    >
+                      <span>{col.label}</span>
+                      <SortIcon
+                        isCurrent={isCurrent}
+                        {...(sort?.direction !== undefined ? { direction: sort.direction } : {})}
+                      />
+                    </button>
+                  ) : (
+                    col.label
+                  )}
+                </th>
+              )
+            })}
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => {
             const id = rowId(row)
+            const clickable = onRowClick !== undefined
             return (
               <tr
                 key={id}
                 {...(testId !== undefined ? { 'data-testid': `${testId}-row-${id}` } : {})}
-                className="border-b border-border last:border-b-0 hover:bg-muted/50"
+                {...(clickable ? { onClick: () => onRowClick(row), tabIndex: 0, role: 'button' } : {})}
+                className={cn(
+                  'border-b border-border last:border-b-0 transition-colors duration-base',
+                  'hover:bg-muted/60',
+                  clickable && 'cursor-pointer focus-visible:bg-muted/60',
+                )}
               >
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className={cn('px-3 py-2 text-foreground', col.cellClassName)}
+                    className={cn('px-4 py-3 align-middle text-foreground', col.cellClassName)}
                   >
                     {renderCell(row, col)}
                   </td>
@@ -107,6 +166,23 @@ export function DataTable<T>({
         </tbody>
       </table>
     </div>
+  )
+}
+
+function SortIcon({
+  isCurrent,
+  direction,
+}: {
+  isCurrent: boolean
+  direction?: SortDirection
+}): React.JSX.Element {
+  if (!isCurrent) {
+    return <ArrowUpDown aria-hidden="true" className="h-3 w-3 opacity-50" />
+  }
+  return direction === 'asc' ? (
+    <ArrowUp aria-hidden="true" className="h-3 w-3 text-foreground" />
+  ) : (
+    <ArrowDown aria-hidden="true" className="h-3 w-3 text-foreground" />
   )
 }
 
