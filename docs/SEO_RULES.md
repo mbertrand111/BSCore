@@ -8,6 +8,59 @@ Admin interfaces, authenticated pages, and API endpoints are excluded.
 
 ---
 
+## 1bis. Baseline Socle vs. Module SEO
+
+Two layers contribute to the SEO surface. Each owns a clear set of artefacts.
+
+### Baseline (always shipped, even without Socle+ or modules)
+
+| Artefact | Source | Behavior |
+|---|---|---|
+| `metadataBase` | `src/app/layout.tsx` (resolved from `NEXT_PUBLIC_APP_URL` via `@/socle/config/site`) | Anchors all relative paths in the metadata API (OG image, canonical hint). **Required in production** — build / runtime throws if unset or malformed. Dev / test fall back to `http://localhost:7777`. |
+| Title default + template | Root metadata | `default: 'BSCore'`, `template: '%s \| BSCore'`. Each page sets its own `title`. |
+| Description default | Root metadata | Generic platform description. Each page overrides. |
+| Open Graph fallback | Root metadata `openGraph` | `type: website`, `siteName`, `locale: fr_FR`, `url`, `title`, `description`. No image fallback (project asset). |
+| Twitter card fallback | Root metadata `twitter` | `card: summary_large_image`, `title`, `description`. |
+| Default robots | Root metadata `robots` | `index: true, follow: true` — private routes opt out per page. |
+| `/robots.txt` | `src/app/robots.ts` | Allow `/`, disallow `/admin`, `/api`, `/dev`, `/login`. Sitemap pointer. |
+| `/sitemap.xml` | `src/app/sitemap.ts` | Homepage entry only — module SEO replaces or extends. |
+| `noindex` on private routes | Per-page `metadata.robots` | Already applied on `/login`, `/dev/ui-preview`. Admin layout adds it as it grows. |
+| `<html lang>` | Root layout | Set per project locale. |
+
+The baseline guarantees: a project deployed *without* the SEO module still has a valid robots.txt, a sitemap, share-friendly OG fallback, and no leaked private routes in search engines.
+
+### Module SEO (when activated)
+
+The module SEO layer extends the baseline. It owns the dynamic, content-aware SEO surface:
+
+| Artefact | Module SEO responsibility |
+|---|---|
+| Per-page title / description / OG | Editable in admin; generated from page content if not set. |
+| Per-page canonical | Computed from the route + query-param policy. |
+| Sitemap | Replaces the baseline single-entry sitemap with a dynamic list (CMS pages, blog posts, products…) including per-content `lastmod`. |
+| OG image generation | Dynamic per-page OG images (e.g. via Next.js `ImageResponse`). |
+| Structured data (JSON-LD) | `Article`, `Product`, `Event`, `FAQPage`, `BreadcrumbList` etc. registered through the module API. |
+| `hreflang` | When the i18n module is active. |
+| Search Console / Bing submission | Operator action, documented per project. |
+
+**Hard rule:** the module SEO must never weaken the baseline. It can only extend or override with stricter values (e.g. add more entries to robots disallow, add canonical, replace a sitemap with a richer one).
+
+### Required client assets
+
+Every project ships these assets in `public/` before going live. The platform does not provide defaults — they are inherently brand-specific.
+
+| Asset | Used by |
+|---|---|
+| `public/favicon.ico` | All browsers (tab icon) |
+| `public/icon.png` (32×32 + 192×192) | Modern browsers, Android home screen |
+| `public/apple-icon.png` (180×180) | iOS home screen |
+| `public/og-default.png` (1200×630) | OG image fallback when a page has none |
+| `public/manifest.webmanifest` *(optional)* | PWA install prompt |
+
+Without these, browsers show generic defaults and shared links render with a missing thumbnail. They are checked in the QUALITY_CHECKLIST before any client launch.
+
+---
+
 ## 2. Semantic HTML
 
 - Use the correct HTML element for the correct semantic role. Never use a `<div>` when a semantic element exists.
