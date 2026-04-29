@@ -52,3 +52,23 @@ Tests that need real auth use `test.skip()` so the suite still runs in degraded 
 - `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` missing → all "logged-in" specs skip
 
 Skips are visible in the Playwright report — they are not silent failures.
+
+---
+
+## Backlog — tests to add when the env supports them
+
+These specs are deferred until `SUPABASE_*` + `DATABASE_URL` are wired in the test environment AND the migrations have run on the test DB. They are **not** in `specs/` yet — listed here so they don't get forgotten.
+
+### SEO module — admin happy path
+
+**Trigger condition:** Supabase + DB E2E env online; `npm run db:migrate` executed against the test DB; `npm run seed:e2e` executed.
+
+**Target test** (`e2e/specs/seo/seo-create.spec.ts` when it lands):
+
+> An authenticated **admin** logs in, navigates to `/admin/seo`, clicks "New entry", fills the form (`route: /e2e-test`, `title: ...`, `description: ...`), submits, lands back on `/admin/seo`, and sees `/e2e-test` in the DataTable.
+
+Exercises in one shot: auth + module activation (registerAdminNav + nav visible) + Zod validation + Server Action + DB write + `revalidatePath` + redirect.
+
+**Cleanup:** the test deletes its row directly in DB at `afterEach` (or uses a unique route per run to avoid collisions).
+
+**Pre-requisite:** module SEO migration `20260429_0005_create_seo_entries.ts` applied — see `docs/SEO_RULES.md` "Deployment note".

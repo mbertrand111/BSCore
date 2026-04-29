@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { ToastProvider } from '@/shared/ui/patterns/Toast'
 import { TooltipProvider } from '@/shared/ui/patterns/Tooltip'
 import { getSiteUrl, getSiteUrlObject } from '@/socle/config/site'
+// Side-effect import: activates enabled modules (registerAdminNav, declarePermissions).
+// See src/app/_boot.ts for details.
+import './_boot'
 import './globals.css'
 
 // Root layout: HTML shell only.

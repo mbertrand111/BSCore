@@ -45,6 +45,66 @@ The module SEO layer extends the baseline. It owns the dynamic, content-aware SE
 
 **Hard rule:** the module SEO must never weaken the baseline. It can only extend or override with stricter values (e.g. add more entries to robots disallow, add canonical, replace a sitemap with a richer one).
 
+### Module SEO V1 — what's actually shipped
+
+**Surface**:
+- Admin nav entry: `/admin/seo` (registered via `registerAdminNav` at module activation through `register()` hook in `src/modules/seo/module.ts`)
+- RBAC resource: `seo-page-meta` — admin: `read`/`update`, super_admin: `manage`
+- Migration: `20260429_0005_create_seo_entries.ts` — creates `seo_entries` table with unique index on `route`
+
+**Public helper** for pages to call from `generateMetadata()`:
+
+```ts
+import { getSeoMetadata } from '@/modules/seo'
+
+export async function generateMetadata() {
+  return getSeoMetadata('/ma-page', {
+    title: 'Fallback title',
+    description: 'Fallback description',
+  })
+}
+```
+
+**Resolution order** (deterministic, no implicit merge):
+1. SEO entry from DB (per-route override)
+2. Caller-provided fallback (page-level defaults)
+3. Socle baseline (Next.js metadata merging from root layout)
+
+**Storage**: one row per route in `seo_entries`. The `route` column is normalized before storage and lookup (trimmed, query/hash stripped, trailing slash removed except root).
+
+**Forbidden routes** (rejected by Zod validation): `/admin*`, `/api*`, `/dev*`, `/login`. Mirrors the robots.txt baseline disallow list — SEO entries can never apply to private surfaces.
+
+**Activation**: triggered automatically when `'seo'` is present in `enabledModuleIds` (default in `src/client/config/modules.config.ts`). The boot-time call to `activateModules()` lives in `src/app/_boot.ts` (imported as a side effect from the root layout).
+
+### Deployment note — required before first use
+
+`npm run db:migrate` **must** run before `/admin/seo` is accessed. Without it the `seo_entries` table does not exist and the list page 500s on `listSeoEntries()`.
+
+| Environment | Action |
+|---|---|
+| Local dev (after `git pull` introducing migration 0005) | `npm run db:migrate` |
+| CI / preview deploys | Run as a deployment step, before serving traffic |
+| Production | Run as a release step, before flipping traffic to the new revision |
+
+The migration is idempotent (`CREATE TABLE IF NOT EXISTS`) — safe to re-run.
+
+### Future E2E coverage
+
+E2E specs for the SEO admin flow are deferred until both `SUPABASE_*` and `DATABASE_URL` are wired in the test environment (currently skipped in [e2e/specs/admin/admin-redirect.spec.ts](e2e/specs/admin/admin-redirect.spec.ts) on the same condition).
+
+Target test once unlocked: **an authenticated admin creates a SEO entry, returns to `/admin/seo`, and sees the new entry in the DataTable.** That single happy-path test exercises auth + activation + CRUD + revalidation in one shot.
+
+### V1 limits
+
+The following are explicitly **not** in module V1 — they are tracked for V2:
+- Dynamic sitemap.xml (the baseline still serves a static homepage-only sitemap)
+- JSON-LD structured data injection
+- `hreflang` multilingual support
+- OG image generation (`ImageResponse`)
+- Per-content `lastmod` for sitemap entries
+- Delete from the admin UI (manage via DB if needed)
+- Admin form preview / share-link rendering
+
 ### Required client assets
 
 Every project ships these assets in `public/` before going live. The platform does not provide defaults — they are inherently brand-specific.
