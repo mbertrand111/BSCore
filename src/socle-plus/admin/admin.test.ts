@@ -26,7 +26,12 @@ import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/socle-plus/auth/supabase-client'
 import { getUserRole } from '@/socle-plus/auth/user-roles-repository'
 import { requireAdminAuth } from './admin-guard'
-import { registerAdminNav, getAdminNav, clearAdminNav } from './admin-nav-registry'
+import {
+  registerAdminNav,
+  getAdminNav,
+  getGroupedAdminNav,
+  clearAdminNav,
+} from './admin-nav-registry'
 import type { AdminNavItem } from './admin.types'
 import type { AuthenticatedUser } from '@/socle-plus/auth/auth.types'
 
@@ -225,5 +230,108 @@ describe('registerAdminNav / getAdminNav / clearAdminNav', () => {
     const result = getAdminNav(makeAdminUser())
     expect(result[0]).toBe(itemAdmin)
     expect(original).toEqual(itemAdmin)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getGroupedAdminNav — sectioned + count-resolving variant
+// ---------------------------------------------------------------------------
+
+describe('getGroupedAdminNav', () => {
+  beforeEach(() => {
+    clearAdminNav()
+  })
+
+  it('returns empty array when no items are registered', async () => {
+    const groups = await getGroupedAdminNav(makeAdminUser())
+    expect(groups).toEqual([])
+  })
+
+  it('groups items into Vue → Contenu → Engagement → Système order', async () => {
+    registerAdminNav({ label: 'Settings',  href: '/admin/settings', requiredRole: 'admin', section: 'system' })
+    registerAdminNav({ label: 'CMS',       href: '/admin/cms',      requiredRole: 'admin', section: 'content' })
+    registerAdminNav({ label: 'Dashboard', href: '/admin',          requiredRole: 'admin', section: 'view' })
+    registerAdminNav({ label: 'Bookings',  href: '/admin/bookings', requiredRole: 'admin', section: 'engagement' })
+
+    const groups = await getGroupedAdminNav(makeAdminUser())
+
+    expect(groups.map((g) => g.section)).toEqual(['view', 'content', 'engagement', 'system'])
+    expect(groups.map((g) => g.items.map((i) => i.label))).toEqual([
+      ['Dashboard'],
+      ['CMS'],
+      ['Bookings'],
+      ['Settings'],
+    ])
+  })
+
+  it('drops empty sections', async () => {
+    registerAdminNav({ label: 'CMS', href: '/admin/cms', requiredRole: 'admin', section: 'content' })
+
+    const groups = await getGroupedAdminNav(makeAdminUser())
+
+    expect(groups).toHaveLength(1)
+    expect(groups[0]?.section).toBe('content')
+  })
+
+  it('defaults section-less items to content', async () => {
+    registerAdminNav({ label: 'SEO', href: '/admin/seo', requiredRole: 'admin' })
+
+    const groups = await getGroupedAdminNav(makeAdminUser())
+
+    expect(groups).toHaveLength(1)
+    expect(groups[0]?.section).toBe('content')
+    expect(groups[0]?.items[0]?.label).toBe('SEO')
+  })
+
+  it('filters by role hierarchy', async () => {
+    registerAdminNav({ label: 'Roles', href: '/admin/roles', requiredRole: 'super_admin', section: 'system' })
+
+    const groups = await getGroupedAdminNav(makeAdminUser({ role: 'admin' }))
+
+    expect(groups).toEqual([])
+  })
+
+  it('resolves count callbacks in parallel', async () => {
+    const cmsCount = vi.fn().mockResolvedValue(2)
+    const mediaCount = vi.fn().mockResolvedValue(14)
+    registerAdminNav({ label: 'CMS',    href: '/admin/cms',   requiredRole: 'admin', section: 'content', count: cmsCount })
+    registerAdminNav({ label: 'Médias', href: '/admin/media', requiredRole: 'admin', section: 'content', count: mediaCount })
+
+    const groups = await getGroupedAdminNav(makeAdminUser())
+
+    expect(cmsCount).toHaveBeenCalledTimes(1)
+    expect(mediaCount).toHaveBeenCalledTimes(1)
+    const items = groups[0]?.items ?? []
+    expect(items.find((i) => i.label === 'CMS')?.count).toBe(2)
+    expect(items.find((i) => i.label === 'Médias')?.count).toBe(14)
+  })
+
+  it('omits the badge when a count callback throws', async () => {
+    const flaky = vi.fn().mockRejectedValue(new Error('db down'))
+    registerAdminNav({ label: 'CMS', href: '/admin/cms', requiredRole: 'admin', section: 'content', count: flaky })
+
+    const groups = await getGroupedAdminNav(makeAdminUser())
+
+    const item = groups[0]?.items[0]
+    expect(item?.label).toBe('CMS')
+    expect(item?.count).toBeUndefined()
+  })
+
+  it('strips the count function from the resolved item', async () => {
+    registerAdminNav({
+      label: 'CMS',
+      href: '/admin/cms',
+      requiredRole: 'admin',
+      section: 'content',
+      count: () => Promise.resolve(7),
+    })
+
+    const groups = await getGroupedAdminNav(makeAdminUser())
+
+    const item = groups[0]?.items[0] as Record<string, unknown> | undefined
+    expect(item).toBeDefined()
+    expect(typeof item?.count).toBe('number')
+    // Resolved items expose count as a number, never the original function.
+    expect(typeof item?.count).not.toBe('function')
   })
 })

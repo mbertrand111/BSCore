@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap");
+
 /*
   Token definitions — single source of truth for theming.
   Override these per-project to apply brand identity.
@@ -12,25 +14,30 @@
 */
 @layer base {
   :root {
-    /* Surface */
-    --color-background:        0 0% 100%;
-    --color-foreground:        210 30% 8%;
-    --color-muted:             210 15% 96%;
-    --color-muted-fg:          210 10% 45%;
-    --color-border:            210 15% 88%;
+    /* Surface — warm off-white main, pure white elevated, slightly darker sunken.
+       Inspired by the BSCore Backoffice design (warm cream #fafaf7 base). */
+    --color-background:        60 18% 97%;       /* #fafaf7 */
+    --color-foreground:        220 14% 8%;       /* #0f1115 — near black w/ blue tint */
+    --color-muted:             48 14% 95%;       /* #f4f3ef */
+    --color-muted-fg:          220 6% 39%;       /* #5b606b */
+    --color-subtle-fg:         220 5% 57%;       /* #8b8f99 — third-level text */
+    --color-border:            220 14% 91%;
 
-    /* Layered surfaces — aliases of background until a project overrides */
+    /* Layered surfaces — main bg / sunken (slightly darker) / elevated (white card) */
     --color-surface:           var(--color-background);
     --color-surface-muted:     var(--color-muted);
+    --color-surface-sunken:    var(--color-muted);
     --color-surface-elevated:  0 0% 100%;
 
-    /* Brand */
-    --color-primary:           210 100% 45%;
+    /* Brand — primary stays platform-blue; accent is the user-tweakable hue.
+       Default accent is cyan to match the BSCore Backoffice maquette default. */
+    --color-primary:           199 89% 48%;      /* #0ea5e9 */
     --color-primary-fg:        0 0% 100%;
-    --color-secondary:         210 15% 94%;
-    --color-secondary-fg:      210 30% 20%;
-    --color-accent:            262 83% 58%;
+    --color-secondary:         220 14% 95%;
+    --color-secondary-fg:      220 14% 20%;
+    --color-accent:            199 89% 48%;      /* #0ea5e9 */
     --color-accent-fg:         0 0% 100%;
+    --color-accent-text:       201 96% 32%;      /* #0369a1 — readable on light bg */
 
     /* Feedback */
     --color-destructive:       0 84% 60%;
@@ -46,6 +53,16 @@
     --color-overlay-dark:      210 30% 8%;
     --color-overlay-light:     0 0% 100%;
 
+    /* Sidebar — dedicated dark namespace for admin chrome.
+       Decoupled from the main content theme (which stays light) so the
+       sidebar can be deep slate without affecting cards / forms / tables. */
+    --color-sidebar-bg:        222 22% 12%;
+    --color-sidebar-fg:        220 14% 92%;
+    --color-sidebar-muted-fg:  220 10% 60%;
+    --color-sidebar-border:    222 18% 20%;
+    --color-sidebar-active-bg: 222 22% 18%;
+    --color-sidebar-active-fg: 0 0% 100%;
+
     /* Shape */
     --radius-sm:               0.25rem;
     --radius-md:               0.5rem;
@@ -57,9 +74,9 @@
     --shadow-md:  0 4px 6px -1px hsl(var(--color-foreground) / 0.08), 0 2px 4px -2px hsl(var(--color-foreground) / 0.06);
     --shadow-lg:  0 10px 25px -5px hsl(var(--color-foreground) / 0.10), 0 8px 10px -6px hsl(var(--color-foreground) / 0.06);
 
-    /* Typography */
-    --font-sans:        system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --font-mono:        'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+    /* Typography — Geist as primary; system fallbacks if the font fails to load. */
+    --font-sans:        'Geist', 'Inter Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --font-mono:        'Geist Mono', 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
     --font-body:        var(--font-sans);
     --font-heading:     var(--font-sans);
     --font-subheading:  var(--font-sans);
@@ -93,6 +110,7 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
+    letter-spacing: -0.01em;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -153,5 +171,13 @@
   @keyframes pop-out {
     from { opacity: 1; transform: scale(1); }
     to   { opacity: 0; transform: scale(0.96); }
+  }
+  @keyframes slide-in-left {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(0); }
+  }
+  @keyframes slide-out-left {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-100%); }
   }
 }

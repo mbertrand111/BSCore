@@ -5,6 +5,7 @@ import type {
   ModuleDefinition,
   ModulePermissionDeclaration,
 } from '../types'
+import { countCmsPages } from './data/repository'
 
 /**
  * CMS module — V1 simple page management.
@@ -35,10 +36,12 @@ import type {
 
 const ADMIN_NAV: ReadonlyArray<ModuleAdminNavEntry> = [
   {
-    label: 'CMS',
+    label: 'Pages',
     href: '/admin/cms',
     requiredRole: 'admin',
-    icon: '📄',
+    icon: 'file-text',
+    section: 'content',
+    count: countCmsPages,
   },
 ]
 

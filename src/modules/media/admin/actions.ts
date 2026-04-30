@@ -15,12 +15,114 @@ import { deleteFromStorage } from '../domain/storage'
 import { altTextSchema, fileMetadataSchema } from '../domain/schemas'
 import type { MediaUploadFormState, MediaEditAltFormState } from './state'
 
-const GENERIC_ERROR = 'Could not complete the action. Please try again.'
+const GENERIC_ERROR = "Impossible de terminer l'action. Veuillez réessayer."
+const GENERIC_UPLOAD_ERROR = "Le téléversement a échoué. Veuillez réessayer."
 
 // ---------------------------------------------------------------------------
 // Upload
 // ---------------------------------------------------------------------------
 
+export interface SingleUploadResult {
+  readonly ok: boolean
+  readonly id?: string
+  readonly originalFilename: string
+  readonly error?: string
+}
+
+/**
+ * Single-file upload action with a clean Promise<Result> signature, designed
+ * to be called directly from a Client Component (via useTransition) one file
+ * at a time. Returns success/failure rather than redirecting, so the caller
+ * can orchestrate multiple uploads, accumulate per-file status, and decide
+ * when to navigate.
+ *
+ * The legacy useActionState entry-point is replaced by this — the multi-file
+ * uploader (MediaUploadForm) loops over selected files, awaits each call, and
+ * surfaces a per-file timeline.
+ *
+ * Alt text is optional and per-file — the multi-file UI exposes one input
+ * per row so users can describe each image before submitting. Empty alt is
+ * accepted; users can fill it later via /admin/media/[id].
+ */
+export async function uploadSingleMediaAction(formData: FormData): Promise<SingleUploadResult> {
+  const user = await requireAdminAuth()
+
+  const fileEntry = formData.get('file')
+  if (!(fileEntry instanceof File)) {
+    return { ok: false, originalFilename: 'inconnu', error: 'Aucun fichier reçu.' }
+  }
+
+  // Alt text — optional per upload. Validated through the same schema as the
+  // edit form to keep the constraint single-sourced.
+  const altRaw = formData.get('altText')
+  const altText = typeof altRaw === 'string' ? altRaw : ''
+  const altParsed = altTextSchema.safeParse(altText)
+  if (!altParsed.success) {
+    return {
+      ok: false,
+      originalFilename: fileEntry.name,
+      error: altParsed.error.issues[0]?.message ?? 'Texte alternatif invalide.',
+    }
+  }
+
+  // Validate file metadata (mime, size, name) — server-side authority even
+  // when the client filters too. Schema messages are already in French.
+  const metaParsed = fileMetadataSchema.safeParse({
+    name: fileEntry.name,
+    type: fileEntry.type,
+    size: fileEntry.size,
+  })
+  if (!metaParsed.success) {
+    return {
+      ok: false,
+      originalFilename: fileEntry.name,
+      error: metaParsed.error.issues[0]?.message ?? 'Fichier invalide.',
+    }
+  }
+
+  // Optional folder destination — read raw from the FormData. Validation
+  // happens at the FK layer (an unknown UUID raises a constraint error,
+  // which we translate into a generic message).
+  const folderRaw = formData.get('folderId')
+  const folderId = typeof folderRaw === 'string' && folderRaw !== '' ? folderRaw : null
+
+  let asset
+  try {
+    asset = await uploadMediaAsset({
+      file: fileEntry,
+      altText: altParsed.data,
+      createdBy: user.id,
+      folderId,
+    })
+    await writeAuditEvent(AUDIT_EVENTS.ADMIN_ACTION, {
+      actorId: user.id,
+      meta: {
+        action: 'media.asset.uploaded',
+        id: asset.id,
+        mimeType: asset.mimeType,
+        sizeBytes: asset.sizeBytes,
+        originalFilename: asset.originalFilename,
+        folderId,
+      },
+    })
+  } catch (error) {
+    logger.error('[media] uploadSingleMediaAction failed', {
+      filename: fileEntry.name,
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return {
+      ok: false,
+      originalFilename: fileEntry.name,
+      error: GENERIC_UPLOAD_ERROR,
+    }
+  }
+
+  revalidatePath('/admin/media')
+  return { ok: true, id: asset.id, originalFilename: asset.originalFilename }
+}
+
+/** @deprecated kept for the legacy single-file form pattern — prefer
+ *  `uploadSingleMediaAction` in new code. */
 export async function uploadMediaAction(
   _prev: MediaUploadFormState,
   formData: FormData,
@@ -31,26 +133,23 @@ export async function uploadMediaAction(
   const altRaw = formData.get('altText')
   const altText = typeof altRaw === 'string' ? altRaw : ''
 
-  // Validate alt text first (cheap)
   const altParsed = altTextSchema.safeParse(altText)
   if (!altParsed.success) {
     return {
       error: null,
-      fieldErrors: { altText: altParsed.error.issues[0]?.message ?? 'Invalid alt text' },
+      fieldErrors: { altText: altParsed.error.issues[0]?.message ?? 'Texte alternatif invalide' },
       values: { altText },
     }
   }
 
-  // The File API in Server Actions: FormDataEntryValue is `string | File`.
   if (!(fileEntry instanceof File)) {
     return {
       error: null,
-      fieldErrors: { file: 'Please choose a file to upload.' },
+      fieldErrors: { file: 'Veuillez choisir un fichier à téléverser.' },
       values: { altText },
     }
   }
 
-  // Validate file metadata (mime, size, name)
   const metaParsed = fileMetadataSchema.safeParse({
     name: fileEntry.name,
     type: fileEntry.type,
@@ -59,7 +158,7 @@ export async function uploadMediaAction(
   if (!metaParsed.success) {
     return {
       error: null,
-      fieldErrors: { file: metaParsed.error.issues[0]?.message ?? 'Invalid file' },
+      fieldErrors: { file: metaParsed.error.issues[0]?.message ?? 'Fichier invalide' },
       values: { altText },
     }
   }

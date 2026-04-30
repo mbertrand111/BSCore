@@ -16,6 +16,14 @@ export const STATUS_VALUES = ['draft', 'published'] as const
 export type CmsStatus = (typeof STATUS_VALUES)[number]
 
 /**
+ * Sentinel value used by the form's "Main image" select to represent
+ * "no image picked". Radix Select does not allow empty-string values for
+ * <Select.Item>, so the form sends this token and the action translates
+ * it back to '' (which the Zod schema already coerces to null).
+ */
+export const NO_MEDIA_SENTINEL = '__none__'
+
+/**
  * Slugs a CMS page MUST NOT use — they collide with platform routes,
  * Next.js conventions, or other module top-level paths.
  *

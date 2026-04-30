@@ -1,5 +1,6 @@
-import { pgTable, uuid, varchar, text, timestamp } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, varchar, text, timestamp, jsonb } from 'drizzle-orm/pg-core'
 import { mediaAssets } from '@/modules/media/data/schema'
+import type { Block } from '../domain/blocks'
 
 /**
  * One row per CMS page.
@@ -29,6 +30,13 @@ export const cmsPages = pgTable('cms_pages', {
   mainMediaAssetId: uuid('main_media_asset_id').references(() => mediaAssets.id, {
     onDelete: 'set null',
   }),
+  /**
+   * Ordered array of typed content blocks. Discriminated union — see
+   * `src/modules/cms/domain/blocks.ts`. The `content` column above stays
+   * as a fallback for pages that haven't been migrated yet (lazy upgrade
+   * on first re-save in the block editor).
+   */
+  blocks: jsonb('blocks').$type<Block[]>().notNull().default([]),
   createdBy: uuid('created_by').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

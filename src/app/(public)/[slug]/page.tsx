@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPublishedCmsPageBySlug } from '@/modules/cms/data/repository'
 import { isReservedSlug } from '@/modules/cms/domain/slug'
+import { BlockRenderer } from '@/modules/cms/components/blocks/BlockRenderer'
 import { getMediaAssetById } from '@/modules/media/data/repository'
 import { getMediaPublicUrl } from '@/modules/media/domain/storage'
 import { getSeoMetadata } from '@/modules/seo/domain/metadata'
@@ -99,15 +100,10 @@ export default async function PublicCmsPage({
         </div>
       ) : null}
 
-      {/*
-        V1: render content as preformatted text with line-break preservation.
-        V2 will introduce Markdown rendering (or sanitized HTML) once a
-        sanitization layer is in place. Keeping V1 plain-text avoids the
-        XSS risk of rendering arbitrary admin-submitted HTML.
-      */}
-      <div className="whitespace-pre-wrap font-body text-base leading-relaxed text-foreground">
-        {page.content}
-      </div>
+      {/* Block-based rendering. Falls back to a single Text block from the
+         legacy `content` field when `blocks` is empty (pages that haven't
+         migrated yet). Same fallback policy as the editor's open path. */}
+      <BlockRenderer blocks={page.blocks} fallbackContent={page.content} />
     </article>
   )
 }

@@ -5,6 +5,7 @@ import type {
   ModuleDefinition,
   ModulePermissionDeclaration,
 } from '../types'
+import { countSeoEntries } from './data/repository'
 
 /**
  * SEO module — extends the Socle SEO baseline with per-page editable
@@ -25,7 +26,9 @@ const ADMIN_NAV: ReadonlyArray<ModuleAdminNavEntry> = [
     label: 'SEO',
     href: '/admin/seo',
     requiredRole: 'admin',
-    icon: '🔍',
+    icon: 'globe',
+    section: 'content',
+    count: countSeoEntries,
   },
 ]
 

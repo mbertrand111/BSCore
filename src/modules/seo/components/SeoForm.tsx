@@ -80,7 +80,7 @@ export function SeoForm({ mode, entry }: SeoFormProps): React.JSX.Element {
         label="Route"
         htmlFor="seo-route"
         required
-        hint="Path on your site, e.g. /about. No query parameters."
+        hint="Chemin sur votre site, ex. /a-propos. Pas de paramètres ?…"
         {...(errRoute !== undefined ? { error: errRoute } : {})}
       >
         <Input
@@ -97,10 +97,10 @@ export function SeoForm({ mode, entry }: SeoFormProps): React.JSX.Element {
 
       {/* Title */}
       <FormField
-        label="Title"
+        label="Titre"
         htmlFor="seo-title"
         required
-        hint="Max 70 characters. Shown in browser tabs and search results."
+        hint="Maximum 70 caractères. Affiché dans l'onglet du navigateur et les résultats de recherche."
         {...(errTitle !== undefined ? { error: errTitle } : {})}
       >
         <Input
@@ -120,7 +120,7 @@ export function SeoForm({ mode, entry }: SeoFormProps): React.JSX.Element {
         label="Description"
         htmlFor="seo-description"
         required
-        hint="Max 160 characters. Shown under the title in search results."
+        hint="Maximum 160 caractères. Affichée sous le titre dans les résultats de recherche."
         {...(errDescription !== undefined ? { error: errDescription } : {})}
       >
         <Textarea
@@ -138,9 +138,9 @@ export function SeoForm({ mode, entry }: SeoFormProps): React.JSX.Element {
 
       {/* Canonical */}
       <FormField
-        label="Canonical URL"
+        label="URL canonique"
         htmlFor="seo-canonical"
-        hint="Optional. Absolute URL (https://...). Leave empty to default to the page URL."
+        hint="Optionnelle. URL absolue (https://...). Vide = URL de la page par défaut."
         {...(errCanonical !== undefined ? { error: errCanonical } : {})}
       >
         <Input
@@ -161,24 +161,24 @@ export function SeoForm({ mode, entry }: SeoFormProps): React.JSX.Element {
           name="robotsIndex"
           defaultChecked={initial.robotsIndex}
           disabled={isPending}
-          label="Allow search engines to index this page"
+          label="Autoriser l'indexation par les moteurs de recherche"
         />
         <Switch
           name="robotsFollow"
           defaultChecked={initial.robotsFollow}
           disabled={isPending}
-          label="Allow search engines to follow links on this page"
+          label="Autoriser le suivi des liens par les moteurs de recherche"
         />
       </fieldset>
 
       {/* Open Graph */}
       <fieldset className="space-y-3 rounded-md border border-border p-4">
-        <legend className="px-2 text-sm font-medium text-foreground">Open Graph (social shares)</legend>
+        <legend className="px-2 text-sm font-medium text-foreground">Open Graph (partage sur les réseaux)</legend>
 
         <FormField
-          label="OG title"
+          label="Titre OG"
           htmlFor="seo-og-title"
-          hint="Optional. Falls back to the page title."
+          hint="Optionnel. Reprend le titre de la page si vide."
           {...(errOgTitle !== undefined ? { error: errOgTitle } : {})}
         >
           <Input
@@ -191,9 +191,9 @@ export function SeoForm({ mode, entry }: SeoFormProps): React.JSX.Element {
         </FormField>
 
         <FormField
-          label="OG description"
+          label="Description OG"
           htmlFor="seo-og-description"
-          hint="Optional. Falls back to the page description."
+          hint="Optionnelle. Reprend la description de la page si vide."
           {...(errOgDescription !== undefined ? { error: errOgDescription } : {})}
         >
           <Textarea
@@ -207,9 +207,9 @@ export function SeoForm({ mode, entry }: SeoFormProps): React.JSX.Element {
         </FormField>
 
         <FormField
-          label="OG image URL"
+          label="URL image OG"
           htmlFor="seo-og-image"
-          hint="Absolute URL or relative path (/...). Recommended 1200×630."
+          hint="URL absolue ou chemin relatif (/...). Recommandé : 1200×630 px."
           {...(errOgImage !== undefined ? { error: errOgImage } : {})}
         >
           <Input
@@ -227,9 +227,9 @@ export function SeoForm({ mode, entry }: SeoFormProps): React.JSX.Element {
         <legend className="px-2 text-sm font-medium text-foreground">Twitter / X</legend>
 
         <FormField
-          label="Twitter title"
+          label="Titre Twitter"
           htmlFor="seo-tw-title"
-          hint="Optional. Falls back to the page title."
+          hint="Optionnel. Reprend le titre de la page si vide."
           {...(errTwTitle !== undefined ? { error: errTwTitle } : {})}
         >
           <Input
@@ -242,9 +242,9 @@ export function SeoForm({ mode, entry }: SeoFormProps): React.JSX.Element {
         </FormField>
 
         <FormField
-          label="Twitter description"
+          label="Description Twitter"
           htmlFor="seo-tw-description"
-          hint="Optional. Falls back to the page description."
+          hint="Optionnelle. Reprend la description de la page si vide."
           {...(errTwDescription !== undefined
             ? { error: errTwDescription }
             : {})}
@@ -260,9 +260,9 @@ export function SeoForm({ mode, entry }: SeoFormProps): React.JSX.Element {
         </FormField>
 
         <FormField
-          label="Twitter image URL"
+          label="URL image Twitter"
           htmlFor="seo-tw-image"
-          hint="Absolute URL or relative path (/...)."
+          hint="URL absolue ou chemin relatif (/...)."
           {...(errTwImage !== undefined
             ? { error: errTwImage }
             : {})}
@@ -282,7 +282,7 @@ export function SeoForm({ mode, entry }: SeoFormProps): React.JSX.Element {
           href="/admin/seo"
           className="inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-medium text-foreground transition-colors duration-base hover:bg-muted"
         >
-          Cancel
+          Annuler
         </Link>
         <Button
           intent="primary"
@@ -290,7 +290,7 @@ export function SeoForm({ mode, entry }: SeoFormProps): React.JSX.Element {
           loading={isPending}
           data-testid="seo-form-submit"
         >
-          {mode === 'create' ? 'Create entry' : 'Save changes'}
+          {mode === 'create' ? "Créer l'entrée" : 'Enregistrer'}
         </Button>
       </div>
     </FormLayout>

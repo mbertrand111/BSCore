@@ -29,6 +29,19 @@ export interface ModuleAdminNavEntry {
   readonly requiredRole: 'admin' | 'super_admin'
   /** Optional decorative icon — passed through to AdminSidebar. */
   readonly icon?: string
+  /**
+   * Sidebar grouping. Content modules (Pages/CMS, Blog, Médias, SEO) go to
+   * 'content'; engagement modules (Réservations, Formulaires, Newsletter) go
+   * to 'engagement'. Core entries (dashboard, users, settings) live in 'view'
+   * / 'system' and are registered by registerCoreNav(), not by modules.
+   */
+  readonly section?: 'view' | 'content' | 'engagement' | 'system'
+  /**
+   * Optional async resolver for a count badge (e.g. "14" media assets).
+   * Called once per sidebar render in parallel with siblings; failures are
+   * swallowed and the badge is omitted rather than crashing the chrome.
+   */
+  readonly count?: () => Promise<number>
 }
 
 export interface ModulePermissionDeclaration {

@@ -28,8 +28,8 @@ export async function loginAction(
   const password = typeof passwordRaw === 'string' ? passwordRaw : ''
 
   const fieldErrors: { email?: string; password?: string } = {}
-  if (email.length === 0) fieldErrors.email = 'Email is required'
-  if (password.length === 0) fieldErrors.password = 'Password is required'
+  if (email.length === 0) fieldErrors.email = "L'adresse e-mail est requise."
+  if (password.length === 0) fieldErrors.password = 'Le mot de passe est requis.'
 
   if (Object.keys(fieldErrors).length > 0) {
     return { error: null, fieldErrors, email }
@@ -38,7 +38,7 @@ export async function loginAction(
   const result = await signIn(email, password)
 
   if (result.error !== null) {
-    return { error: 'Invalid email or password.', email }
+    return { error: 'Adresse e-mail ou mot de passe incorrect.', email }
   }
 
   const target = safeReturnTo(typeof returnToRaw === 'string' ? returnToRaw : null)

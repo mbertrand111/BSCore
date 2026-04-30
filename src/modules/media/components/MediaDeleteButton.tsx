@@ -21,13 +21,13 @@ export function MediaDeleteButton({ id, filename }: MediaDeleteButtonProps): Rea
     <form
       action={action}
       onSubmit={(e) => {
-        if (!window.confirm(`Delete "${filename}"? This cannot be undone.`)) {
+        if (!window.confirm(`Supprimer « ${filename} » ? Cette action est irréversible.`)) {
           e.preventDefault()
         }
       }}
     >
       <Button intent="destructive" size="sm" type="submit" data-testid="media-delete">
-        Delete
+        Supprimer
       </Button>
     </form>
   )

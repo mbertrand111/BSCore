@@ -9,7 +9,10 @@ import { createSeoEntry, getSeoEntryByRoute, updateSeoEntry } from '../data/repo
 import { seoEntryInputSchema } from '../domain/schemas'
 import type { SeoFormState } from './state'
 
-const PARSE_FAILURE_MSG = 'Some fields are invalid. Please correct the highlighted entries.'
+const PARSE_FAILURE_MSG =
+  'Certains champs sont invalides. Veuillez corriger les entrées surlignées.'
+const ROUTE_TAKEN_MSG = "Une entrée existe déjà pour cette route — ouvrez-la pour la modifier."
+const GENERIC_ERROR = "Impossible d'enregistrer l'entrée. Veuillez réessayer."
 
 function readFormString(formData: FormData, key: string): string {
   const v = formData.get(key)
@@ -72,7 +75,7 @@ export async function createSeoEntryAction(
   if (existing !== null) {
     return {
       error: null,
-      fieldErrors: { route: 'A SEO entry already exists for this route.' },
+      fieldErrors: { route: ROUTE_TAKEN_MSG },
       values: payload,
     }
   }
@@ -87,7 +90,7 @@ export async function createSeoEntryAction(
     logger.error('[seo] createSeoEntryAction failed', {
       error: error instanceof Error ? error.message : String(error),
     })
-    return { error: 'Could not save the entry. Please try again.', values: payload }
+    return { error: GENERIC_ERROR, values: payload }
   }
 
   revalidatePath('/admin/seo')
@@ -132,7 +135,7 @@ export async function updateSeoEntryAction(
       id,
       error: error instanceof Error ? error.message : String(error),
     })
-    return { error: 'Could not save the entry. Please try again.', values: payload }
+    return { error: GENERIC_ERROR, values: payload }
   }
 
   revalidatePath('/admin/seo')

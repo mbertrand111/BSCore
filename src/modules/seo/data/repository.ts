@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { eq } from 'drizzle-orm'
+import { count, eq } from 'drizzle-orm'
 import { db } from '@/socle-plus/database'
 import { seoEntries, type SeoEntryRow } from './schema'
 import type { SeoEntryInput } from '../domain/schemas'
@@ -51,6 +51,11 @@ function mapRow(row: SeoEntryRow): SeoEntry {
 export async function listSeoEntries(): Promise<SeoEntry[]> {
   const rows = await db.select().from(seoEntries).orderBy(seoEntries.route)
   return rows.map(mapRow)
+}
+
+export async function countSeoEntries(): Promise<number> {
+  const [row] = await db.select({ value: count() }).from(seoEntries)
+  return row?.value ?? 0
 }
 
 export async function getSeoEntryById(id: string): Promise<SeoEntry | null> {

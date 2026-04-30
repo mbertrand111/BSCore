@@ -39,7 +39,11 @@ export async function checkMediaDatabase(): Promise<HealthCheck> {
     return { name: 'media.db', status: 'ok' }
   } catch (error) {
     const detail = error instanceof Error ? error.message : 'Unknown database error'
-    logger.error('[media.health] db check failed', { error: detail })
+    // Logged at WARN, not ERROR: a degraded health probe is expected
+    // operational state (table missing in fresh dev DB, env not configured),
+    // not a system failure. ERROR would surface as a red overlay in Next.js
+    // dev mode and as a paging signal in production monitoring.
+    logger.warn('[media.health] db check degraded', { error: detail })
     return {
       name: 'media.db',
       status: 'degraded',
@@ -53,7 +57,8 @@ export async function checkMediaStorage(): Promise<HealthCheck> {
   if (result.ok) return { name: 'media.storage', status: 'ok' }
 
   const reason = result.reason ?? 'Unknown storage error'
-  logger.error('[media.health] storage check failed', { error: reason })
+  // Logged at WARN — see checkMediaDatabase comment.
+  logger.warn('[media.health] storage check degraded', { error: reason })
   return {
     name: 'media.storage',
     status: 'degraded',

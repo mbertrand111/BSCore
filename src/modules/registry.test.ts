@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+// Module register hooks now reference repository helpers (count*) which import
+// 'server-only'. Stub it so vitest can resolve the chain.
+vi.mock('server-only', () => ({}))
+
 // Mock the logger so registry tests don't pollute test output and we can
 // assert on warning / info calls.
 vi.mock('@/socle/logger', () => ({

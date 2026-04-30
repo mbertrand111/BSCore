@@ -13,9 +13,12 @@ export async function checkDatabaseHealth(): Promise<HealthCheck> {
   } catch (error) {
     const detail = error instanceof Error ? error.message : 'Unknown database error'
 
-    // Always log the underlying cause server-side for diagnostics.
-    // The structured logger sanitizes meta values before output.
-    logger.error('[health] database check failed', { error: detail })
+    // Logged at WARN, not ERROR: a degraded health probe is expected
+    // operational state (DB unreachable in dev, transient timeout in prod),
+    // not a system failure that should page on-call. The /api/health route
+    // surfaces the degraded status via the response body — that's the
+    // canonical signal for monitoring.
+    logger.warn('[health] database check degraded', { error: detail })
 
     // In production, the response message must not leak driver internals,
     // hostnames, credentials, or stack details. /api/health may sit on a

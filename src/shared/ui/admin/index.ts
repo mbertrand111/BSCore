@@ -7,6 +7,9 @@ export type { AdminSectionProps } from './AdminSection'
 export { AdminEmptyState } from './AdminEmptyState'
 export type { AdminEmptyStateProps } from './AdminEmptyState'
 
+export { AdminComingSoon } from './AdminComingSoon'
+export type { AdminComingSoonProps } from './AdminComingSoon'
+
 export { AdminForbidden } from './AdminForbidden'
 export type { AdminForbiddenProps } from './AdminForbidden'
 

@@ -30,9 +30,9 @@ export function MediaEditAltForm({ asset }: MediaEditAltFormProps): React.JSX.El
       globalError={state.error !== null ? state.error : undefined}
     >
       <FormField
-        label="Alt text"
+        label="Texte alternatif"
         htmlFor="media-edit-alt"
-        hint="Describe the image for screen readers and search engines."
+        hint="Décrit l'image pour les lecteurs d'écran et les moteurs de recherche."
         {...(errAlt !== undefined ? { error: errAlt } : {})}
       >
         <Textarea
@@ -52,7 +52,7 @@ export function MediaEditAltForm({ asset }: MediaEditAltFormProps): React.JSX.El
           href="/admin/media"
           className="inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-medium text-foreground transition-colors duration-base hover:bg-muted"
         >
-          Cancel
+          Annuler
         </Link>
         <Button
           intent="primary"
@@ -60,7 +60,7 @@ export function MediaEditAltForm({ asset }: MediaEditAltFormProps): React.JSX.El
           loading={isPending}
           data-testid="media-edit-submit"
         >
-          Save changes
+          Enregistrer
         </Button>
       </div>
     </FormLayout>

@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { desc, eq } from 'drizzle-orm'
+import { count, desc, eq, isNull } from 'drizzle-orm'
 import { db } from '@/socle-plus/database'
 import { mediaAssets, type MediaAssetRow } from './schema'
 import { getStoragePublicUrl } from '../domain/storage'
@@ -17,6 +17,7 @@ export interface MediaAsset {
   mimeType: string
   sizeBytes: number
   altText: string
+  folderId: string | null
   createdBy: string
   createdAt: Date
   updatedAt: Date
@@ -28,6 +29,8 @@ export interface CreateMediaInput {
   mimeType: string
   sizeBytes: number
   altText: string
+  /** Folder to file the asset under. `null` (default) = "Non classés". */
+  folderId?: string | null
   createdBy: string
 }
 
@@ -40,15 +43,36 @@ function mapRow(row: MediaAssetRow): MediaAsset {
     mimeType: row.mimeType,
     sizeBytes: row.sizeBytes,
     altText: row.altText,
+    folderId: row.folderId,
     createdBy: row.createdBy,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   }
 }
 
-export async function listMediaAssets(): Promise<MediaAsset[]> {
-  const rows = await db.select().from(mediaAssets).orderBy(desc(mediaAssets.createdAt))
+/**
+ * List media assets, optionally narrowed to a folder.
+ *
+ *   - omitted / `undefined`  → every asset
+ *   - `null`                  → only assets in no folder ("Non classés")
+ *   - `string`                → only assets in that folder
+ */
+export async function listMediaAssets(
+  folderId?: string | null,
+): Promise<MediaAsset[]> {
+  const base = db.select().from(mediaAssets)
+  const rows =
+    folderId === undefined
+      ? await base.orderBy(desc(mediaAssets.createdAt))
+      : folderId === null
+        ? await base.where(isNull(mediaAssets.folderId)).orderBy(desc(mediaAssets.createdAt))
+        : await base.where(eq(mediaAssets.folderId, folderId)).orderBy(desc(mediaAssets.createdAt))
   return rows.map(mapRow)
+}
+
+export async function countMediaAssets(): Promise<number> {
+  const [row] = await db.select({ value: count() }).from(mediaAssets)
+  return row?.value ?? 0
 }
 
 export async function getMediaAssetById(id: string): Promise<MediaAsset | null> {

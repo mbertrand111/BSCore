@@ -1,10 +1,11 @@
 import 'server-only'
 
-import { and, desc, eq } from 'drizzle-orm'
+import { and, count, desc, eq } from 'drizzle-orm'
 import { db } from '@/socle-plus/database'
 import { cmsPages, type CmsPageRow } from './schema'
 import type { CmsPageInput } from '../domain/schemas'
 import type { CmsStatus } from '../constants'
+import type { Block } from '../domain/blocks'
 import { normalizeSlug } from '../domain/slug'
 
 export interface CmsPage {
@@ -13,6 +14,7 @@ export interface CmsPage {
   slug: string
   excerpt: string | null
   content: string
+  blocks: Block[]
   status: CmsStatus
   mainMediaAssetId: string | null
   createdBy: string
@@ -31,6 +33,10 @@ function mapRow(row: CmsPageRow): CmsPage {
     slug: row.slug,
     excerpt: row.excerpt,
     content: row.content,
+    // The DB column is JSONB typed as `Block[]` via Drizzle's `$type` —
+    // shape integrity is the action's responsibility (Zod parse before
+    // write). Reads trust the data already in DB.
+    blocks: (row.blocks ?? []) as Block[],
     status,
     mainMediaAssetId: row.mainMediaAssetId,
     createdBy: row.createdBy,
@@ -47,6 +53,11 @@ function mapRow(row: CmsPageRow): CmsPage {
 export async function listCmsPages(): Promise<CmsPage[]> {
   const rows = await db.select().from(cmsPages).orderBy(desc(cmsPages.updatedAt))
   return rows.map(mapRow)
+}
+
+export async function countCmsPages(): Promise<number> {
+  const [row] = await db.select({ value: count() }).from(cmsPages)
+  return row?.value ?? 0
 }
 
 export async function listPublishedCmsPages(): Promise<CmsPage[]> {
@@ -110,6 +121,10 @@ export async function createCmsPage(input: CreateCmsPageData): Promise<CmsPage> 
       slug: input.slug,
       excerpt: input.excerpt,
       content: input.content,
+      // Drizzle's $type<Block[]>() is a compile-time hint; at runtime we
+      // cast through unknown because the Zod parse upstream guarantees the
+      // shape and TS can't infer that.
+      blocks: input.blocks as unknown as typeof cmsPages.$inferInsert.blocks,
       status: input.status,
       mainMediaAssetId: input.mainMediaAssetId,
       createdBy: input.createdBy,
@@ -143,6 +158,7 @@ export async function updateCmsPage(
       slug: input.slug,
       excerpt: input.excerpt,
       content: input.content,
+      blocks: input.blocks as unknown as typeof cmsPages.$inferInsert.blocks,
       status: input.status,
       mainMediaAssetId: input.mainMediaAssetId,
       updatedAt: now,

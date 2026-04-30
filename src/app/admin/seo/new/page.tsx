@@ -6,12 +6,12 @@ export default function NewSeoEntryPage(): React.JSX.Element {
   return (
     <div className="max-w-2xl">
       <AdminPageHeader
-        title="New SEO entry"
-        description="Override the platform SEO baseline for a specific route."
+        title="Nouvelle entrée SEO"
+        description="Surcharge les métadonnées SEO par défaut pour une route précise."
         breadcrumbs={[
           { label: 'Admin', href: '/admin' },
           { label: 'SEO', href: '/admin/seo' },
-          { label: 'New' },
+          { label: 'Nouvelle' },
         ]}
       />
       <SeoForm mode="create" />

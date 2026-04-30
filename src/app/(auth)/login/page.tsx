@@ -6,12 +6,13 @@ import { getEnv } from '@/socle/config/env'
 import { createSupabaseServerClient } from '@/socle-plus/auth/supabase-client'
 import { getUserRole } from '@/socle-plus/auth/user-roles-repository'
 import type { CookieStore } from '@/socle-plus/auth/auth.types'
+import { branding } from '@/client/config/branding.config'
 import { Card } from '@/shared/ui/patterns/Card'
 import { LoginForm } from './login-form'
 import { safeReturnTo } from './return-to'
 
 export const metadata: Metadata = {
-  title: 'Sign in',
+  title: 'Connexion',
   robots: { index: false, follow: false },
 }
 
@@ -39,14 +40,25 @@ export default async function LoginPage({
   }
 
   return (
-    <Card>
-      <Card.Header>
-        <h1 className="text-base font-semibold text-foreground">Sign in to BSCore</h1>
-      </Card.Header>
-      <Card.Body>
-        <LoginForm returnTo={returnTo} />
-      </Card.Body>
-    </Card>
+    <div className="space-y-6">
+      <div className="text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-foreground font-heading text-base font-semibold text-background">
+          {branding.clientShortName}
+        </div>
+        <h1 className="font-heading text-2xl font-semibold text-foreground">
+          {branding.clientName}
+        </h1>
+        <p className="mt-1 text-sm text-muted-fg">Connexion à votre espace</p>
+      </div>
+      <Card variant="elevated">
+        <Card.Body>
+          <LoginForm returnTo={returnTo} />
+        </Card.Body>
+      </Card>
+      <p className="text-center text-[10px] uppercase tracking-[0.32em] text-muted-fg/70">
+        Powered by Boreal Studio
+      </p>
+    </div>
   )
 }
 

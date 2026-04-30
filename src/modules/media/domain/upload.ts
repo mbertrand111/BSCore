@@ -19,6 +19,8 @@ export interface UploadMediaInput {
   altText: string
   /** Supabase Auth user id of the uploader. */
   createdBy: string
+  /** Optional folder to file the new asset under. `null` = no folder. */
+  folderId?: string | null
 }
 
 export async function uploadMediaAsset(input: UploadMediaInput): Promise<MediaAsset> {
@@ -49,6 +51,7 @@ export async function uploadMediaAsset(input: UploadMediaInput): Promise<MediaAs
       mimeType: input.file.type,
       sizeBytes: input.file.size,
       altText: input.altText,
+      folderId: input.folderId ?? null,
       createdBy: input.createdBy,
     })
   } catch (dbError) {

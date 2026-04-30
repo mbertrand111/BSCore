@@ -17,11 +17,13 @@ const config: Config = {
         foreground:       'hsl(var(--color-foreground) / <alpha-value>)',
         muted:            'hsl(var(--color-muted) / <alpha-value>)',
         'muted-fg':       'hsl(var(--color-muted-fg) / <alpha-value>)',
+        'subtle-fg':      'hsl(var(--color-subtle-fg) / <alpha-value>)',
         border:           'hsl(var(--color-border) / <alpha-value>)',
 
-        surface:           'hsl(var(--color-surface) / <alpha-value>)',
-        'surface-muted':   'hsl(var(--color-surface-muted) / <alpha-value>)',
-        'surface-elevated':'hsl(var(--color-surface-elevated) / <alpha-value>)',
+        surface:            'hsl(var(--color-surface) / <alpha-value>)',
+        'surface-muted':    'hsl(var(--color-surface-muted) / <alpha-value>)',
+        'surface-sunken':   'hsl(var(--color-surface-sunken) / <alpha-value>)',
+        'surface-elevated': 'hsl(var(--color-surface-elevated) / <alpha-value>)',
 
         primary:          'hsl(var(--color-primary) / <alpha-value>)',
         'primary-fg':     'hsl(var(--color-primary-fg) / <alpha-value>)',
@@ -29,6 +31,7 @@ const config: Config = {
         'secondary-fg':   'hsl(var(--color-secondary-fg) / <alpha-value>)',
         accent:           'hsl(var(--color-accent) / <alpha-value>)',
         'accent-fg':      'hsl(var(--color-accent-fg) / <alpha-value>)',
+        'accent-text':    'hsl(var(--color-accent-text) / <alpha-value>)',
 
         destructive:      'hsl(var(--color-destructive) / <alpha-value>)',
         'destructive-fg': 'hsl(var(--color-destructive-fg) / <alpha-value>)',
@@ -41,6 +44,13 @@ const config: Config = {
 
         'overlay-dark':   'hsl(var(--color-overlay-dark) / <alpha-value>)',
         'overlay-light':  'hsl(var(--color-overlay-light) / <alpha-value>)',
+
+        'sidebar-bg':         'hsl(var(--color-sidebar-bg) / <alpha-value>)',
+        'sidebar-fg':         'hsl(var(--color-sidebar-fg) / <alpha-value>)',
+        'sidebar-muted-fg':   'hsl(var(--color-sidebar-muted-fg) / <alpha-value>)',
+        'sidebar-border':     'hsl(var(--color-sidebar-border) / <alpha-value>)',
+        'sidebar-active-bg':  'hsl(var(--color-sidebar-active-bg) / <alpha-value>)',
+        'sidebar-active-fg':  'hsl(var(--color-sidebar-active-fg) / <alpha-value>)',
       },
       borderRadius: {
         sm: 'var(--radius-sm)',
@@ -97,6 +107,8 @@ const config: Config = {
         },
         'pop-in':  { from: { opacity: '0', transform: 'scale(0.96)' }, to: { opacity: '1', transform: 'scale(1)' } },
         'pop-out': { from: { opacity: '1', transform: 'scale(1)' }, to: { opacity: '0', transform: 'scale(0.96)' } },
+        'slide-in-left':  { from: { transform: 'translateX(-100%)' }, to: { transform: 'translateX(0)' } },
+        'slide-out-left': { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(-100%)' } },
         'accordion-down': {
           from: { height: '0' },
           to:   { height: 'var(--radix-accordion-content-height)' },
@@ -113,6 +125,8 @@ const config: Config = {
         'content-out':    'content-out var(--motion-fast) var(--ease-standard)',
         'pop-in':         'pop-in  var(--motion-fast) var(--ease-standard)',
         'pop-out':        'pop-out var(--motion-fast) var(--ease-standard)',
+        'slide-in-left':  'slide-in-left  var(--motion-base) var(--ease-emphasized)',
+        'slide-out-left': 'slide-out-left var(--motion-fast) var(--ease-standard)',
         'accordion-down': 'accordion-down var(--motion-base) var(--ease-standard)',
         'accordion-up':   'accordion-up   var(--motion-base) var(--ease-standard)',
       },

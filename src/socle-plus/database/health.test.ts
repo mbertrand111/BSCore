@@ -41,7 +41,7 @@ describe('checkDatabaseHealth — success', () => {
     vi.stubEnv('NODE_ENV', 'production')
     vi.mocked(db.execute).mockResolvedValue(undefined as never)
     await checkDatabaseHealth()
-    expect(vi.mocked(logger.error)).not.toHaveBeenCalled()
+    expect(vi.mocked(logger.warn)).not.toHaveBeenCalled()
   })
 })
 
@@ -126,8 +126,8 @@ describe('checkDatabaseHealth — server-side logging', () => {
     vi.stubEnv('NODE_ENV', 'development')
     vi.mocked(db.execute).mockRejectedValue(new Error('hidden detail'))
     await checkDatabaseHealth()
-    expect(vi.mocked(logger.error)).toHaveBeenCalledTimes(1)
-    const call = vi.mocked(logger.error).mock.calls[0]
+    expect(vi.mocked(logger.warn)).toHaveBeenCalledTimes(1)
+    const call = vi.mocked(logger.warn).mock.calls[0]
     expect(call?.[1]).toEqual({ error: 'hidden detail' })
   })
 
@@ -136,8 +136,8 @@ describe('checkDatabaseHealth — server-side logging', () => {
     const sensitive = 'password authentication failed for user "postgres"'
     vi.mocked(db.execute).mockRejectedValue(new Error(sensitive))
     await checkDatabaseHealth()
-    expect(vi.mocked(logger.error)).toHaveBeenCalledTimes(1)
-    const call = vi.mocked(logger.error).mock.calls[0]
+    expect(vi.mocked(logger.warn)).toHaveBeenCalledTimes(1)
+    const call = vi.mocked(logger.warn).mock.calls[0]
     expect(call?.[1]).toEqual({ error: sensitive })
   })
 
@@ -145,7 +145,7 @@ describe('checkDatabaseHealth — server-side logging', () => {
     vi.stubEnv('NODE_ENV', 'production')
     vi.mocked(db.execute).mockRejectedValue(42 as never)
     await checkDatabaseHealth()
-    const call = vi.mocked(logger.error).mock.calls[0]
+    const call = vi.mocked(logger.warn).mock.calls[0]
     expect(call?.[1]).toEqual({ error: 'Unknown database error' })
   })
 })

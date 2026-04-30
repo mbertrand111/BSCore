@@ -11,7 +11,7 @@ const COLUMNS: ReadonlyArray<DataTableColumn<SeoEntry>> = [
     label: 'Route',
     render: (e) => <code className="font-mono text-xs">{e.route}</code>,
   },
-  { key: 'title', label: 'Title', accessor: 'title' },
+  { key: 'title', label: 'Titre', accessor: 'title' },
   {
     key: 'robots',
     label: 'Robots',
@@ -28,13 +28,13 @@ const COLUMNS: ReadonlyArray<DataTableColumn<SeoEntry>> = [
   },
   {
     key: 'updatedAt',
-    label: 'Last updated',
+    label: 'Modifiée',
     render: (e) => (
       <time
         dateTime={e.updatedAt.toISOString()}
         className="text-xs text-muted-fg"
       >
-        {e.updatedAt.toLocaleDateString()}
+        {e.updatedAt.toLocaleDateString('fr-FR')}
       </time>
     ),
   },
@@ -46,7 +46,7 @@ const COLUMNS: ReadonlyArray<DataTableColumn<SeoEntry>> = [
         href={`/admin/seo/${e.id}`}
         className="text-xs font-medium text-primary hover:underline"
       >
-        Edit
+        Modifier
       </Link>
     ),
   },
@@ -58,23 +58,23 @@ export default async function SeoListPage(): Promise<React.JSX.Element> {
   return (
     <div>
       <AdminPageHeader
-        title="SEO entries"
-        description="Per-route metadata that overrides the platform SEO baseline."
+        title="Entrées SEO"
+        description="Métadonnées par route qui surchargent les valeurs SEO par défaut de la plateforme."
         breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'SEO' }]}
         action={
           <Link href="/admin/seo/new">
-            <Button intent="primary">New entry</Button>
+            <Button intent="primary">Nouvelle entrée</Button>
           </Link>
         }
       />
 
       {entries.length === 0 ? (
         <AdminEmptyState
-          title="No SEO entries yet"
-          description="Add a per-route entry to override the platform SEO baseline (title, description, OG, canonical, robots)."
+          title="Aucune entrée SEO pour l'instant"
+          description="Ajoutez une entrée par route pour surcharger les métadonnées par défaut (titre, description, OG, canonique, robots)."
           action={
             <Link href="/admin/seo/new">
-              <Button intent="primary">Create the first entry</Button>
+              <Button intent="primary">Créer la première entrée</Button>
             </Link>
           }
         />

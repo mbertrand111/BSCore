@@ -18,8 +18,8 @@ export default async function EditSeoEntryPage({
   return (
     <div className="max-w-2xl">
       <AdminPageHeader
-        title={`Edit ${entry.route}`}
-        description="Update the SEO metadata for this route."
+        title={`Modifier ${entry.route}`}
+        description="Mettez à jour les métadonnées SEO de cette route."
         breadcrumbs={[
           { label: 'Admin', href: '/admin' },
           { label: 'SEO', href: '/admin/seo' },

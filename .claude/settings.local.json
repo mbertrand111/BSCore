@@ -27,7 +27,28 @@
       "Bash(taskkill //PID 36760 //F)",
       "Bash(curl -s -L -o /tmp/admin2.html -w \"HTTP %{http_code} size=%{size_download} url=%{url_effective}\\\\n\" \"http://localhost:7777/admin\")",
       "Bash(curl -s -o /tmp/devmodules2.html -w \"HTTP %{http_code} size=%{size_download}\\\\n\" \"http://localhost:7777/dev/modules\")",
-      "Bash(curl -s \"http://localhost:7777/_next/static/css/app/layout.css?v=1777533576613\" -o /tmp/layout2.css -w \"HTTP %{http_code} size=%{size_download}\\\\n\")"
+      "Bash(curl -s \"http://localhost:7777/_next/static/css/app/layout.css?v=1777533576613\" -o /tmp/layout2.css -w \"HTTP %{http_code} size=%{size_download}\\\\n\")",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|json\\)$\")",
+      "Bash(taskkill //PID 27744 //F)",
+      "Bash(mkdir -p /tmp/bscore-design)",
+      "Bash(gunzip -c \"C:/Users/MBERTRAND/.claude/projects/c---git-BSCore/b0dec187-1447-46f7-b734-db1684b053d8/tool-results/webfetch-1777543984085-v07hjr.bin\")",
+      "Bash(tar -tf raw.tar)",
+      "Bash(tar -xf raw.tar)",
+      "Bash(taskkill //PID 34016 //F)",
+      "Bash(curl -s -o /tmp/admin.html -w \"HTTP %{http_code} size=%{size_download}\\\\n\" \"http://localhost:7777/admin/cms\")",
+      "Bash(taskkill //PID 20000 //F)",
+      "Bash(tasklist)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/api/health)",
+      "Bash(curl -s http://localhost:3000/api/health)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/api/health)",
+      "Bash(curl -s http://localhost:3001/api/health)",
+      "Bash(curl -s -o /dev/null -w \"/admin: %{http_code}\\\\n\" http://localhost:3001/admin)",
+      "Bash(curl -s -o /dev/null -w \"/admin/cms: %{http_code}\\\\n\" http://localhost:3001/admin/cms)",
+      "Bash(curl -s -o /dev/null -w \"/sandbox/photographer: %{http_code}\\\\n\" http://localhost:3001/sandbox/photographer)",
+      "Bash(curl -s -o /dev/null -w \"/login: %{http_code}\\\\n\" http://localhost:3001/login)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:7777/admin)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:7777/api/health)",
+      "Bash(curl -s http://localhost:7777/api/health)"
     ]
   }
 }

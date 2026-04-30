@@ -5,6 +5,7 @@ import type {
   ModuleDefinition,
   ModulePermissionDeclaration,
 } from '../types'
+import { countMediaAssets } from './data/repository'
 
 /**
  * Media module — V1 simple media library.
@@ -31,10 +32,12 @@ import type {
 
 const ADMIN_NAV: ReadonlyArray<ModuleAdminNavEntry> = [
   {
-    label: 'Media',
+    label: 'Médias',
     href: '/admin/media',
     requiredRole: 'admin',
-    icon: '🖼️',
+    icon: 'image',
+    section: 'content',
+    count: countMediaAssets,
   },
 ]
 

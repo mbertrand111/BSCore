@@ -13,7 +13,7 @@ import { ALLOWED_MIME_TYPES, MAX_SIZE_BYTES } from '../constants'
 export const altTextSchema = z
   .string()
   .trim()
-  .max(500, 'Alt text must be 500 characters or fewer')
+  .max(500, 'Le texte alternatif ne peut pas dépasser 500 caractères.')
 
 export const updateAltTextSchema = z.object({
   altText: altTextSchema,
@@ -30,18 +30,18 @@ export const fileMetadataSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, 'File name is required')
-    .max(255, 'File name must be 255 characters or fewer'),
+    .min(1, 'Le nom de fichier est requis.')
+    .max(255, 'Le nom de fichier ne peut pas dépasser 255 caractères.'),
   type: z
     .string()
     .refine((v) => ALLOWED_MIME_TYPES.includes(v), {
-      message: `File type is not allowed. Allowed: ${ALLOWED_MIME_TYPES.join(', ')}.`,
+      message: `Type de fichier non supporté. Formats acceptés : ${ALLOWED_MIME_TYPES.join(', ')}.`,
     }),
   size: z
     .number()
-    .int('File size must be an integer')
-    .positive('File appears to be empty')
-    .max(MAX_SIZE_BYTES, `File exceeds the ${formatMb(MAX_SIZE_BYTES)} maximum`),
+    .int('La taille du fichier doit être un entier.')
+    .positive('Le fichier semble vide.')
+    .max(MAX_SIZE_BYTES, `Le fichier dépasse la taille maximale de ${formatMb(MAX_SIZE_BYTES)}.`),
 })
 
 export type FileMetadata = z.infer<typeof fileMetadataSchema>

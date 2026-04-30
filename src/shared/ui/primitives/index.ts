@@ -32,4 +32,10 @@ export { Skeleton } from './Skeleton'
 export type { SkeletonProps } from './Skeleton'
 
 export { Avatar, AvatarImage, AvatarFallback } from './Avatar'
-export type { AvatarProps, AvatarImageProps, AvatarFallbackProps, AvatarSize } from './Avatar'
+export type {
+  AvatarProps,
+  AvatarImageProps,
+  AvatarFallbackProps,
+  AvatarSize,
+  AvatarShape,
+} from './Avatar'

@@ -19,6 +19,28 @@ export const photographerNav = [
 
 export type PhotographerNavId = (typeof photographerNav)[number]['id']
 
+/**
+ * Maps a sandbox route id to the CMS page slug it pulls its content from.
+ *
+ * Each sandbox page (server component) reads the corresponding CMS page via
+ * `getPublishedCmsPageBySlug(slug)`. The page's title / excerpt / mainMedia /
+ * blocks feed the photographer's specialized components — design stays
+ * client-side, content lives in /admin/cms.
+ *
+ * The slugs here MUST match what `seed:demo` creates (see scripts/seed-demo.ts
+ * → CMS array). When you add a new sandbox route, add its slug here AND
+ * provide a corresponding CmsSpec in the seed.
+ */
+export const photographerCmsSlugByRoute = {
+  home: 'accueil',
+  portfolio: 'portfolio',
+  about: 'a-propos',
+  services: 'services',
+  contact: 'contact',
+} as const
+
+export type PhotographerCmsRoute = keyof typeof photographerCmsSlugByRoute
+
 export const photographerImages = {
   hero: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1800&q=80',
   portrait: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=900&q=80',

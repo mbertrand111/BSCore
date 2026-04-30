@@ -35,7 +35,7 @@ export function LoginForm({ returnTo }: LoginFormProps): React.JSX.Element {
       <input type="hidden" name="returnTo" value={returnTo} />
 
       <FormField
-        label="Email"
+        label="Adresse e-mail"
         htmlFor="login-email"
         required
         {...(emailError !== undefined ? { error: emailError } : {})}
@@ -56,7 +56,7 @@ export function LoginForm({ returnTo }: LoginFormProps): React.JSX.Element {
       </FormField>
 
       <FormField
-        label="Password"
+        label="Mot de passe"
         htmlFor="login-password"
         required
         {...(passwordError !== undefined ? { error: passwordError } : {})}
@@ -83,7 +83,7 @@ export function LoginForm({ returnTo }: LoginFormProps): React.JSX.Element {
         data-testid="login-submit"
         className="w-full"
       >
-        {isPending ? 'Signing in…' : 'Sign in'}
+        {isPending ? 'Connexion…' : 'Se connecter'}
       </Button>
     </FormLayout>
   )

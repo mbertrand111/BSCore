@@ -6,6 +6,7 @@ import {
   MAX_TITLE_LENGTH,
   STATUS_VALUES,
 } from '../constants'
+import { blocksSchema } from './blocks'
 import { isReservedSlug, isValidSlugFormat, normalizeSlug } from './slug'
 
 /**
@@ -64,6 +65,13 @@ export const cmsPageInputSchema = z.object({
   status: z.enum(STATUS_VALUES),
 
   mainMediaAssetId: optionalUuid,
+
+  /**
+   * Ordered array of typed content blocks. Default to `[]` so older callers
+   * (tests, scripts) that don't yet pass blocks keep working — a page with
+   * no blocks falls back to rendering its `content` field publicly.
+   */
+  blocks: blocksSchema.default([]),
 })
 
 export type CmsPageInput = z.infer<typeof cmsPageInputSchema>

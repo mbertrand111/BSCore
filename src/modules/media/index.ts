@@ -8,8 +8,10 @@
 
 export { mediaModule } from './module'
 
-// Read-only public types for consumers (e.g. a future CMS module that
-// references uploaded media).
+// Read-only public types + accessors for consumers that need to resolve a
+// media id to its full asset shape (e.g. the CMS public route showing a
+// page's main image, the sandbox loading the photographer's hero asset).
+export { getMediaAssetById } from './data/repository'
 export type { MediaAsset } from './data/repository'
 
 // Public-URL accessors. Prefer `getMediaPublicUrl(asset)` — it's the
