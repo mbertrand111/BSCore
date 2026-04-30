@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(npm test *)",
+      "Bash(NEXT_PUBLIC_APP_URL=http://localhost:7777 npm run build)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(grep -E \"/\\\\[|/admin|/api|/dev|/login|/robots|/sitemap|^├ ○ /$|^┌ ○ /$|/_not\")",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(cd \"/tmp\")",
+      "Bash(cp \"/c/Users/MBERTRAND/.claude/projects/c---git-BSCore/b0dec187-1447-46f7-b734-db1684b053d8/tool-results/webfetch-1777478795423-ljk5ub.bin\" design.gz)",
+      "Bash(gunzip -k -f design.gz)",
+      "Bash(mkdir -p /tmp/design-extract)",
+      "Read(//tmp/**)",
+      "Bash(tar -xf /tmp/design)",
+      "Bash(netstat -ano)",
+      "Bash(curl -s -L -o /tmp/admin.html -w \"HTTP %{http_code} size=%{size_download} url=%{url_effective}\\\\n\" \"http://localhost:7777/admin\")",
+      "Bash(curl -s -L -o /tmp/devmodules.html -w \"HTTP %{http_code} size=%{size_download} url=%{url_effective}\\\\n\" \"http://localhost:7777/dev/modules\")",
+      "Bash(curl -s \"http://localhost:7777/_next/static/css/app/layout.css\")",
+      "Bash(curl -s \"http://localhost:7777/_next/static/css/app/layout.css?v=1777532163516\" -o /tmp/layout.css -w \"HTTP %{http_code} size=%{size_download}\\\\n\")",
+      "Bash(curl -s -L -o /tmp/uipreview.html -w \"HTTP %{http_code} size=%{size_download}\\\\n\" \"http://localhost:7777/dev/ui-preview\")",
+      "Bash(curl -s \"http://localhost:7777/_next/static/css/app/layout.css?v=1777532295538\" -o /tmp/layout-uipreview.css -w \"HTTP %{http_code} size=%{size_download}\\\\n\")",
+      "Bash(git -C c:/_git/BSCore check-ignore -v .env.local)",
+      "Bash(taskkill //PID 36760 //F)",
+      "Bash(curl -s -L -o /tmp/admin2.html -w \"HTTP %{http_code} size=%{size_download} url=%{url_effective}\\\\n\" \"http://localhost:7777/admin\")",
+      "Bash(curl -s -o /tmp/devmodules2.html -w \"HTTP %{http_code} size=%{size_download}\\\\n\" \"http://localhost:7777/dev/modules\")",
+      "Bash(curl -s \"http://localhost:7777/_next/static/css/app/layout.css?v=1777533576613\" -o /tmp/layout2.css -w \"HTTP %{http_code} size=%{size_download}\\\\n\")"
+    ]
+  }
+}

@@ -15,8 +15,8 @@
     "test:e2e:ui": "playwright test --ui",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\" --ignore-path .gitignore",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\" --ignore-path .gitignore",
-    "db:migrate": "tsx scripts/db-migrate.ts",
-    "seed:e2e": "tsx scripts/seed-e2e-users.ts"
+    "db:migrate": "tsx --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/db-migrate.ts",
+    "seed:e2e": "tsx --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/seed-e2e-users.ts"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
