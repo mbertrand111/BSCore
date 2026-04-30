@@ -153,6 +153,22 @@ const MEDIA: ReadonlyArray<MediaSpec> = [
   { storagePath: 'seed/30-getting-ready.jpg',        filename: 'getting-ready.jpg',        altText: 'Préparation — robe',                    sourceUrl: U('1494790108377-be9c29b29330') },
 ]
 
+/**
+ * Slugs that previous seed runs created but that we no longer want in the
+ * /admin/cms list. They get deleted (idempotently) at the end of `seed:demo`
+ * so re-running the seed converges to the desired state. Safe to remove
+ * entries once you're sure they're gone from every environment.
+ */
+const OBSOLETE_CMS_SLUGS: ReadonlyArray<string> = [
+  'a-propos-test',
+  'tarifs',
+  'galeries-couples-2026',
+  'mariages',
+  'portraits',
+  'journal',
+  'mentions-legales',
+]
+
 const CMS: ReadonlyArray<CmsSpec> = [
   // -------------------------------------------------------------------------
   // Sandbox-aligned pages — these slugs are the source of truth for the
@@ -274,238 +290,6 @@ const CMS: ReadonlyArray<CmsSpec> = [
     ],
   },
 
-  // -------------------------------------------------------------------------
-  // Additional demo pages — not wired to a sandbox route. Kept to populate
-  // the /admin/cms list with a realistic mix of statuses and block layouts.
-  // -------------------------------------------------------------------------
-  {
-    slug: 'a-propos-test',
-    title: 'À propos — Aurélie Lambert',
-    excerpt:
-      "Photographe de mariage depuis 2018, j'accompagne les couples qui cherchent une approche éditoriale et discrète.",
-    content: [
-      "Je suis Aurélie, photographe de mariage basée à Paris. Mon approche est documentaire et éditoriale : capter les moments justes, sans diriger, sans poser, en laissant la journée se dérouler naturellement.",
-      "Chaque mariage est unique. Mon rôle est d'en garder la trace fidèle, pour que vous puissiez la revisiter dans dix, vingt, cinquante ans, sans qu'elle ait pris une ride.",
-      'Disponible en France, en Italie et partout en Europe.',
-    ].join('\n\n'),
-    status: 'draft',
-    blocks: [
-      {
-        type: 'hero',
-        title: 'À propos',
-        subtitle: 'Photographe de mariage éditoriale, basée à Paris.',
-        mediaFilename: 'portrait-aurelie.jpg',
-      },
-      {
-        type: 'text',
-        body:
-          "Je suis Aurélie, photographe de mariage basée à Paris. Mon approche est documentaire et éditoriale : capter les moments justes, sans diriger, sans poser, en laissant la journée se dérouler naturellement.\n\nChaque mariage est unique. Mon rôle est d'en garder la trace fidèle, pour que vous puissiez la revisiter dans dix, vingt, cinquante ans, sans qu'elle ait pris une ride.\n\nDisponible en France, en Italie et partout en Europe.",
-      },
-      {
-        type: 'cta',
-        title: 'Réservons un premier échange',
-        text: 'Quelques lignes suffisent pour démarrer — je vous réponds sous 48 heures.',
-        ctaLabel: 'Me contacter',
-        ctaHref: '/sandbox/photographer/contact',
-      },
-    ],
-  },
-  {
-    slug: 'tarifs',
-    title: 'Tarifs et prestations',
-    excerpt: 'Aperçu des trois prestations principales — La Journée, Le Week-end, Destination.',
-    content: [
-      'La Journée — à partir de 2 800 €. Reportage de 10 heures, galerie privée 600+ images, livraison sous 8 semaines.',
-      'Le Week-end — à partir de 4 500 €. Couverture vendredi → dimanche, 1200+ images, album fine-art inclus.',
-      'Destination — devis personnalisé. Forfait voyage inclus, repérage la veille, livraison express.',
-    ].join('\n\n'),
-    status: 'draft',
-    blocks: [
-      {
-        type: 'hero',
-        title: 'Prestations & Tarifs',
-        subtitle: 'Trois formules pour trois manières de vivre votre mariage.',
-        mediaFilename: 'marion-paul.jpg',
-      },
-      {
-        type: 'text',
-        body:
-          "Chaque prestation est sur-mesure. Les tarifs ci-dessous sont indicatifs — un devis détaillé est envoyé après notre premier échange, en fonction du lieu, de la durée et de vos attentes.",
-      },
-      {
-        type: 'text',
-        body:
-          'La Journée — à partir de 2 800 €.\nReportage de 10 heures, galerie privée 600+ images, livraison sous 8 semaines.',
-      },
-      {
-        type: 'text',
-        body:
-          'Le Week-end — à partir de 4 500 €.\nCouverture vendredi → dimanche, 1200+ images, album fine-art inclus.',
-      },
-      {
-        type: 'text',
-        body:
-          'Destination — devis personnalisé.\nForfait voyage inclus, repérage la veille, livraison express.',
-      },
-      {
-        type: 'cta',
-        title: 'Demander un devis',
-        text: 'Date, lieu, ambiance — quelques mots suffisent.',
-        ctaLabel: 'Contact',
-        ctaHref: '/sandbox/photographer/contact',
-      },
-    ],
-  },
-  {
-    slug: 'galeries-couples-2026',
-    title: 'Galerie — Couples 2026',
-    excerpt: 'Sélection 2026 des séances couple en lumière naturelle.',
-    content: [
-      'Une sélection de séances couple capturées au début de la saison 2026 : Provence, Toscane, Bretagne et Île-de-France.',
-      'Toutes les séances sont réalisées en lumière naturelle, hors studio, dans un lieu choisi avec le couple.',
-    ].join('\n\n'),
-    status: 'draft',
-    blocks: [
-      {
-        type: 'hero',
-        title: 'Couples 2026',
-        subtitle: 'Sélection de séances en lumière naturelle.',
-        mediaFilename: 'couples-2026-01.jpg',
-      },
-      {
-        type: 'text',
-        body:
-          "Une sélection de séances couple capturées au début de la saison 2026 : Provence, Toscane, Bretagne et Île-de-France. Toutes les séances sont réalisées en lumière naturelle, hors studio, dans un lieu choisi avec le couple.",
-      },
-      {
-        type: 'gallery',
-        title: 'Sélection 2026',
-        mediaFilenames: [
-          'couples-2026-01.jpg',
-          'couples-2026-02.jpg',
-          'couple-portrait.jpg',
-          'lea-antoine.jpg',
-          'camille-hugo.jpg',
-          'ines-tom.jpg',
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'mariages',
-    title: 'Mariages',
-    excerpt: 'Reportages de mariage complets — France et Europe.',
-    content: [
-      'Trois formules : La Journée (10h sur place), Le Week-end (vendredi à dimanche), Destination (forfait sur-mesure).',
-      'Chaque reportage donne lieu à une galerie privée en ligne et à une sélection imprimable en fine-art.',
-    ].join('\n\n'),
-    status: 'published',
-    blocks: [
-      {
-        type: 'hero',
-        title: 'Mariages',
-        subtitle: 'Reportages éditoriaux en France et en Europe.',
-        mediaFilename: 'mariage-lea-tom-hero.jpg',
-      },
-      {
-        type: 'text',
-        body:
-          "Trois formules : La Journée (10h sur place), Le Week-end (vendredi à dimanche), Destination (forfait sur-mesure). Chaque reportage donne lieu à une galerie privée en ligne et à une sélection imprimable en fine-art.",
-      },
-      {
-        type: 'gallery',
-        title: 'Sélection 2025',
-        mediaFilenames: [
-          'camille-hugo.jpg',
-          'lea-antoine.jpg',
-          'marion-paul.jpg',
-          'ines-tom.jpg',
-          'provence-2025.jpg',
-          'toscane-2025.jpg',
-        ],
-      },
-      {
-        type: 'cta',
-        title: 'Réservez votre date',
-        text: 'Disponibilités jusqu’en septembre 2026.',
-        ctaLabel: 'Vérifier ma disponibilité',
-        ctaHref: '/sandbox/photographer/contact',
-      },
-    ],
-  },
-  {
-    slug: 'portraits',
-    title: 'Portraits',
-    excerpt: 'Portraits — solo, couple, famille, professionnel.',
-    content: [
-      'Séances de 1h à 3h, en extérieur ou au studio, en lumière naturelle.',
-      'Idéal pour anniversaires, EVJF/EVG, séances "engagement" avant mariage, photos de profil pro.',
-    ].join('\n\n'),
-    status: 'published',
-    blocks: [
-      {
-        type: 'hero',
-        title: 'Portraits',
-        subtitle: 'Solo, couple, famille, professionnel.',
-        mediaFilename: 'portrait-emilie.jpg',
-      },
-      {
-        type: 'text',
-        body:
-          "Séances de 1h à 3h, en extérieur ou au studio, en lumière naturelle. Idéal pour anniversaires, EVJF/EVG, séances « engagement » avant mariage, photos de profil pro.",
-      },
-      {
-        type: 'gallery',
-        mediaFilenames: [
-          'portrait-emilie.jpg',
-          'portrait-marc.jpg',
-          'portrait-aurelie.jpg',
-          'groom-portrait.jpg',
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'journal',
-    title: 'Journal',
-    excerpt: "Articles, coulisses et conseils pour préparer votre séance.",
-    content: [
-      'Le journal regroupe nos derniers reportages publiés, des conseils pratiques pour préparer une séance, et quelques notes sur le métier.',
-      "Nouvelle publication tous les quinze jours en moyenne — abonnez-vous à la newsletter pour ne rien manquer.",
-    ].join('\n\n'),
-    status: 'draft',
-    blocks: [
-      {
-        type: 'hero',
-        title: 'Journal',
-        subtitle: 'Coulisses, conseils, derniers reportages.',
-        mediaFilename: 'atelier-coulisses.jpg',
-      },
-      {
-        type: 'text',
-        body:
-          "Le journal regroupe nos derniers reportages publiés, des conseils pratiques pour préparer une séance, et quelques notes sur le métier.\n\nNouvelle publication tous les quinze jours en moyenne — abonnez-vous à la newsletter pour ne rien manquer.",
-      },
-    ],
-  },
-  {
-    slug: 'mentions-legales',
-    title: 'Mentions légales',
-    excerpt: "Informations légales et politique de confidentialité.",
-    content: [
-      'Studio Aurélie Lambert — SIRET 000 000 000 00000 — Siège social : Paris.',
-      'Hébergement : Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA.',
-      'Pour toute demande relative aux données personnelles, écrire à bonjour@aurelie-lambert.fr.',
-    ].join('\n\n'),
-    status: 'published',
-    blocks: [
-      {
-        type: 'text',
-        body:
-          'Studio Aurélie Lambert — SIRET 000 000 000 00000 — Siège social : Paris.\n\nHébergement : Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA.\n\nPour toute demande relative aux données personnelles, écrire à bonjour@aurelie-lambert.fr.',
-      },
-    ],
-  },
 ]
 
 // ---------------------------------------------------------------------------
@@ -866,8 +650,21 @@ async function main(): Promise<void> {
     console.log(`  ✓ cms ${result}: /${spec.slug} (${spec.status})${blockSummary}`)
   }
 
+  // Drop pages from previous seed runs that we no longer want around.
+  let dbDeleted = 0
+  for (const slug of OBSOLETE_CMS_SLUGS) {
+    const result = await db
+      .delete(cmsPages)
+      .where(eq(cmsPages.slug, slug))
+      .returning({ id: cmsPages.id })
+    if (result.length > 0) {
+      dbDeleted += 1
+      console.log(`  · cms deleted (obsolete): /${slug}`)
+    }
+  }
+
   console.log(
-    `[seed:demo] done — db: created=${dbCreated} updated=${dbUpdated} · storage: uploaded=${storageUploaded} existing=${storageSkipped} failed=${storageFailed}`,
+    `[seed:demo] done — db: created=${dbCreated} updated=${dbUpdated} deleted=${dbDeleted} · storage: uploaded=${storageUploaded} existing=${storageSkipped} failed=${storageFailed}`,
   )
 }
 
